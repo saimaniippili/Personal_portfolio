@@ -208,6 +208,10 @@
   }
 }
 
+.mobile-shake-hint {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .skills-heading {
     font-size: 3rem;
@@ -215,4 +219,32 @@
   .timeline-item h3 {
     font-size: 1.2rem;
   }
+  
+  .mobile-shake-hint {
+    display: flex;
+    justify-content: center;
+    font-family: 'Anton', sans-serif;
+    color: var(--text-light);
+    opacity: 0.8;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+    animation: bounceText 2s infinite;
+  }
+}
+
+@keyframes bounceText {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.premium-tools-grid.shuffling .premium-tool-box {
+  animation: shakeShuffle 0.8s ease-in-out;
+}
+
+@keyframes shakeShuffle {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(10px, -10px) rotate(10deg) scale(0.9); }
+  50% { transform: translate(-10px, 10px) rotate(-10deg) scale(0.9); }
+  75% { transform: translate(10px, 10px) rotate(5deg) scale(1.1); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
 }

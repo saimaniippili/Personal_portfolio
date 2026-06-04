@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { skills } from '../constants';
 import { FaPython, FaDatabase, FaAws, FaReact, FaNodeJs, FaGitAlt, FaLinux, FaBrain, FaRobot } from 'react-icons/fa';
 import './Skills.css';
 import ScrollReveal from './ScrollReveal';
 
-const tools = [
+const initialTools = [
   { name: 'Python', icon: <FaPython /> },
   { name: 'SQL', icon: <FaDatabase /> },
   { name: 'AWS', icon: <FaAws /> },
@@ -18,6 +18,52 @@ const tools = [
 
 const Skills = () => {
   const [activeCategory, setActiveCategory] = useState(null);
+  
+  // Shake to shuffle states
+  const [currentTools, setCurrentTools] = useState(initialTools);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [hasShaken, setHasShaken] = useState(false);
+  const isShufflingRef = useRef(false);
+
+  useEffect(() => {
+    let lastX, lastY, lastZ;
+    const SHAKE_THRESHOLD = 15;
+
+    const handleMotion = (e) => {
+      if (window.innerWidth > 768) return; // Only on mobile
+      
+      const acc = e.accelerationIncludingGravity;
+      if (!acc) return;
+      
+      if (lastX !== undefined) {
+        const deltaX = Math.abs(lastX - acc.x);
+        const deltaY = Math.abs(lastY - acc.y);
+        const deltaZ = Math.abs(lastZ - acc.z);
+        
+        if (deltaX > SHAKE_THRESHOLD || deltaY > SHAKE_THRESHOLD || deltaZ > SHAKE_THRESHOLD) {
+          if (!isShufflingRef.current) {
+            isShufflingRef.current = true;
+            setHasShaken(true);
+            setIsShuffling(true);
+            
+            setCurrentTools(prev => [...prev].sort(() => Math.random() - 0.5));
+
+            setTimeout(() => {
+              isShufflingRef.current = false;
+              setIsShuffling(false);
+            }, 800);
+          }
+        }
+      }
+      lastX = acc.x;
+      lastY = acc.y;
+      lastZ = acc.z;
+    };
+
+    // Need permission on iOS 13+ but we'll attach normally and it will work on Android & older iOS
+    window.addEventListener('devicemotion', handleMotion);
+    return () => window.removeEventListener('devicemotion', handleMotion);
+  }, []);
 
   return (
     <section id="skills" className="skills-section">
@@ -74,11 +120,16 @@ const Skills = () => {
         
         <ScrollReveal className="skills-column tools-column" delay={0.5}>
           <h2 className="skills-heading torn-text" data-text="TOOLS">TOOLS</h2>
-          <div className="premium-tools-grid">
-            {tools.map((tool, idx) => (
-              <div key={idx} className="tool-badge">
-                <span className="tool-icon">{tool.icon}</span>
-                <span className="tool-name">{tool.name}</span>
+          {!hasShaken && (
+            <div className="mobile-shake-hint">
+              📱 SHAKE TO SHUFFLE
+            </div>
+          )}
+          <div className={`premium-tools-grid ${isShuffling ? 'shuffling' : ''}`}>
+            {currentTools.map((tool, idx) => (
+              <div key={tool.name} className="premium-tool-box">
+                {tool.icon}
+                <div className="tool-tooltip">{tool.name}</div>
               </div>
             ))}
           </div>
