@@ -16,12 +16,33 @@ const Contact = () => {
   const sectionRef = useRef(null);
 
   const handleMouseMove = (e) => {
+    if (window.innerWidth <= 768) return; // Prevent conflict with gyro
     if (!sectionRef.current) return;
     const { left, top, width, height } = sectionRef.current.getBoundingClientRect();
     const x = (e.clientX - left) / width - 0.5; // -0.5 to 0.5
     const y = (e.clientY - top) / height - 0.5; // -0.5 to 0.5
     setMousePos({ x: x * 2, y: y * 2 });
   };
+
+  useEffect(() => {
+    const handleGyroscope = (e) => {
+      if (e.gamma !== null && e.beta !== null && window.innerWidth <= 768) {
+        const { innerWidth, innerHeight } = window;
+        const gamma = Math.min(Math.max(e.gamma, -45), 45); 
+        const xPos = ((gamma + 45) / 90) * innerWidth;
+        const beta = Math.min(Math.max(e.beta - 45, -45), 45);
+        const yPos = ((beta + 45) / 90) * innerHeight;
+
+        const x = (xPos / innerWidth - 0.5) * 2;
+        const y = (yPos / innerHeight - 0.5) * 2;
+        setMousePos({ x, y });
+        setIsHoveringForm(true); // Force 3D tilt on mobile
+      }
+    };
+
+    window.addEventListener('deviceorientation', handleGyroscope);
+    return () => window.removeEventListener('deviceorientation', handleGyroscope);
+  }, []);
 
   const calculateProgress = () => {
     let progress = 0;
