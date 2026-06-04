@@ -95,9 +95,7 @@ const Hero = () => {
     <section 
       id="hero" 
       className="hero-section" 
-      onMouseMove={handlePointerMove} 
-      onTouchMove={handlePointerMove}
-      onTouchStart={handlePointerMove}
+      onMouseMove={handlePointerMove}
       ref={sectionRef}
     >
       

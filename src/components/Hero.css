@@ -179,8 +179,10 @@
   }
 }
 
-.mobile-tilt-hint {
-  display: none; /* Hide on desktop completely */
+@media (min-width: 769px) {
+  .mobile-tilt-hint {
+    display: none;
+  }
 }
 
 .resume-download-btn {
