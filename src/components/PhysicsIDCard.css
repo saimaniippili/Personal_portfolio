@@ -259,3 +259,27 @@
   will-change: transform, filter, opacity;
   pointer-events: none;
 }
+
+/* 
+  Lanyard Visuals (Pin) 
+*/
+.lanyard-pin {
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 30% 30%, #f0f0f0, #888, #333);
+  border-radius: 50%;
+  box-shadow: 
+    0 4px 6px rgba(0,0,0,0.5),
+    inset 0 -1px 3px rgba(0,0,0,0.6);
+}
+
+.lanyard-pin::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 6px;
+  width: 2px;
+  height: 12px;
+  background: linear-gradient(to bottom, #555, transparent);
+  z-index: -1;
+}

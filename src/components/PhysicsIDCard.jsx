@@ -28,7 +28,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
     friction: 0.94, // Damping (air resistance)
     springTension: 0.12, // Stiffness of the lanyard
     mouseSpringTension: 0.08, // Strength of user's pull
-    lanyardLength: 650, // Distance from pivot to center of mass
+    lanyardLength: 400, // Reduced to prevent bleeding into hero section
     windStrength: 0.015, // Micro-oscillations
     mass: 1.5 // Adds weight to the card
   };
@@ -55,7 +55,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
 
       // 2. Lanyard Constraint (Spring toward pivot)
       const pivotX = 0;
-      const pivotY = -600; // Pivot is very high up to allow a long visible string
+      const pivotY = -350; // Lowered pivot to keep it within the About section
       
       const dx = pivotX - s.x;
       const dy = pivotY - s.y;
@@ -228,6 +228,18 @@ const PhysicsIDCard = ({ imageSrc }) => {
   return (
     <div className="physics-card-container" ref={containerRef}>
       
+      {/* Pivot point visual (Pin) */}
+      <div 
+        className="lanyard-pin" 
+        style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: `translate(calc(-50% + 0px), calc(-50% + -350px))`,
+          zIndex: 15
+        }}
+      ></div>
+
       {/* SVG Lanyard Straps */}
       <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none' }}>
         <defs>
