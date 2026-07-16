@@ -342,20 +342,58 @@ const PhysicsIDCard = ({ imageSrc }) => {
             <div className="hardware-hole">
               <div className="hardware-hole-inner"></div>
             </div>
+            
+            {/* Pill Cutouts in the plastic sleeve */}
+            <div className="sleeve-cutout left"></div>
+            <div className="sleeve-cutout right"></div>
           </div>
 
-          <div className="physics-card-content">
-            <div className="card-header">
-              <span className="card-company">AI & ML PORTFOLIO</span>
+          <div className="physics-card-inner">
+            <div className="inner-card-header">
+              <svg className="header-icon" viewBox="0 0 24 24" fill="var(--accent-red)">
+                <path d="M12 2L4.5 9h3v13h9V9h3L12 2zm0 3.8l3.7 3.5h-2.2V20h-3V9.3H8.3L12 5.8z"/>
+              </svg>
+              <span className="header-role">AI & ML ENGINEER</span>
             </div>
-            <div className="card-photo-container">
-              <img src={imageSrc} alt="Saimani" className="card-photo" draggable="false" />
+            
+            <div className="inner-card-photo-area">
+              <div className="geometric-bg"></div>
+              <img src={imageSrc} alt="Saimani" className="inner-card-photo" draggable="false" />
             </div>
-            <h3 className="card-name">Saimani</h3>
-            <p className="card-role">Machine Learning Engineer</p>
-            <div className="card-footer">
-              <div className="card-barcode"></div>
-              <div className="card-id">ID: 001-AI-ML</div>
+            
+            <div className="inner-card-name-area">
+              <h1 className="name-primary"><span className="red-text">SAI</span>MANI</h1>
+              <h2 className="name-secondary">IPPILI</h2>
+            </div>
+            
+            <div className="inner-role-banner">
+              MACHINE LEARNING ENGINEER
+            </div>
+            
+            <div className="inner-details-area">
+              <div className="qr-code">
+                {/* Simulated QR Code Pattern */}
+                <div className="qr-pattern"></div>
+              </div>
+              <div className="details-text">
+                <div className="detail-group">
+                  <div className="detail-label">EMPLOYEE ID</div>
+                  <div className="detail-value">AI-ML-001</div>
+                </div>
+                <div className="detail-group">
+                  <div className="detail-label">JOIN DATE</div>
+                  <div className="detail-value">JUN 2025</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="inner-barcode-area">
+              <div className="barcode-bars"></div>
+              <div className="barcode-motto">BUILDING INTELLIGENCE, SHAPING FUTURE.</div>
+            </div>
+            
+            <div className="inner-bottom-bar">
+              www.saimani.dev
             </div>
           </div>
 

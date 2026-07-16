@@ -37,188 +37,257 @@
   user-select: none;
 }
 
+/* 
+  Card Content (Plastic Sleeve and Inner Paper)
+*/
 .physics-card-body {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #f8f9fa;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: visible; /* To allow clip to overflow top */
-  
-  /* Laminated PVC base styles */
-  box-shadow: 
-    inset 0 0 0 1px rgba(255,255,255,1), 
-    inset 0 0 10px rgba(0,0,0,0.05),
-    inset 0 -10px 20px rgba(0,0,0,0.05);
-  transform-style: preserve-3d;
-}
-
-/* 
-  Hardware Assembly (The metal clip and hole punch) 
-*/
-.hardware-assembly {
-  position: absolute;
-  top: -45px; /* Stick out above the card */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 20;
-}
-
-.hardware-ring {
-  width: 40px;
-  height: 15px;
-  border: 4px solid #b0b0b0;
-  border-radius: 10px 10px 0 0;
-  background: transparent;
-  box-shadow: inset 0 2px 2px rgba(255,255,255,0.8), 0 2px 5px rgba(0,0,0,0.3);
-  margin-bottom: -2px;
-}
-
-.hardware-clip {
-  width: 20px;
-  height: 35px;
-  background: linear-gradient(90deg, #888 0%, #eee 40%, #ddd 60%, #777 100%);
-  border-radius: 4px;
-  position: relative;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,1);
-}
-
-.hardware-clip-shine {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, transparent 40%);
-}
-
-.hardware-hole {
-  position: absolute;
-  top: 55px; /* Overlaps into the card body */
-  width: 70px;
-  height: 16px;
-  background: transparent;
-  border-radius: 8px;
-  /* Creates the illusion of a punched hole with card thickness */
-  box-shadow: 
-    inset 0 4px 6px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(0,0,0,0.4),
-    0 1px 0 rgba(255,255,255,1);
-}
-.hardware-hole-inner {
-  position: absolute;
-  top: 1px; left: 1px; right: 1px; bottom: 1px;
-  background: var(--bg-dark); /* See through the hole to the dark background */
-  border-radius: 7px;
-  z-index: -1;
-  box-shadow: inset 0 5px 10px rgba(0,0,0,0.8);
-}
-
-/* 
-  Card Content 
-*/
-.physics-card-content {
-  width: 100%;
-  height: 100%;
-  padding: 40px 25px 20px; /* Top padding clears the hole punch */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2;
-  position: relative;
-}
-
-.card-header {
-  width: 100%;
-  background: var(--accent-red);
-  padding: 12px;
-  text-align: center;
-  margin-bottom: 25px;
-  /* Sub-surface scattering simulation on the red */
-  box-shadow: 0 2px 10px rgba(229, 9, 20, 0.4);
-}
-
-.card-company {
-  font-family: 'Anton', sans-serif;
-  color: white;
-  letter-spacing: 3px;
-  font-size: 1.1rem;
-}
-
-.card-photo-container {
-  width: 180px;
-  height: 180px;
+  /* Plastic sleeve appearance */
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 12px;
-  padding: 4px;
-  background: white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  
+  box-shadow: 
+    inset 0 0 0 2px rgba(255,255,255,0.7), 
+    inset 0 0 15px rgba(0,0,0,0.1),
+    0 10px 20px rgba(0,0,0,0.1);
+  transform-style: preserve-3d;
+  padding: 8px; /* Gap between plastic and paper */
 }
 
-.card-photo {
+/* Pill cutouts in plastic sleeve */
+.sleeve-cutout {
+  position: absolute;
+  top: 58px;
+  width: 12px;
+  height: 5px;
+  background: var(--bg-dark);
+  border-radius: 5px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+}
+.sleeve-cutout.left {
+  left: 25px;
+}
+.sleeve-cutout.right {
+  right: 25px;
+}
+
+.physics-card-inner {
   width: 100%;
   height: 100%;
+  background: #f4f4f4;
   border-radius: 8px;
-  object-fit: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
 }
 
-.card-name {
-  font-family: 'Anton', sans-serif;
-  font-size: 2.8rem;
+.inner-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px 0 10px;
+  gap: 6px;
+}
+
+.header-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.header-role {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
   color: #111;
+  letter-spacing: 0.5px;
+}
+
+.inner-card-photo-area {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   margin-bottom: 5px;
+}
+
+.geometric-bg {
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  width: 90%;
+  height: 70px;
+  background: #bd2b31;
+  transform: translateY(-50%);
+  clip-path: polygon(0 0, 100% 20%, 100% 100%, 0 80%);
+}
+
+.inner-card-photo {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  position: relative;
+  z-index: 2;
+  /* Ensure the bottom of the photo blends or sits flat */
+  border-bottom: 2px solid transparent;
+}
+
+.inner-card-name-area {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.name-primary {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 2.2rem;
+  letter-spacing: -0.5px;
+  margin-bottom: 0;
+  line-height: 1;
+}
+
+.name-primary .red-text {
+  color: #d32f2f;
+}
+
+.name-secondary {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #444;
   letter-spacing: 1px;
 }
 
-.card-role {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #555;
+.inner-role-banner {
+  width: 90%;
+  background: #d32f2f;
+  color: white;
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
   font-weight: 700;
+  padding: 4px 0;
+  border-radius: 2px;
+  margin-bottom: 12px;
 }
 
-.card-footer {
+.inner-details-area {
+  display: flex;
+  width: 85%;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.qr-code {
+  width: 45px;
+  height: 45px;
+  background: white;
+  padding: 3px;
+  border: 1px solid #ccc;
+}
+
+.qr-pattern {
   width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111), repeating-linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111);
+  background-position: 0 0, 4px 4px;
+  background-size: 8px 8px;
+}
+
+.details-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-grow: 1;
+  padding-left: 15px;
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.45rem;
+  color: #666;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: #111;
+  font-weight: 800;
+}
+
+.inner-barcode-area {
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 25px;
-  padding-top: 15px;
+  margin-bottom: 15px;
 }
 
-.card-barcode {
-  width: 85%;
-  height: 45px;
+.barcode-bars {
+  width: 100%;
+  height: 25px;
   background: repeating-linear-gradient(
     90deg,
     #111,
     #111 2px,
     transparent 2px,
-    transparent 5px,
+    transparent 4px,
+    #111 4px,
     #111 5px,
-    #111 7px,
-    transparent 7px,
-    transparent 11px,
+    transparent 5px,
+    transparent 8px,
+    #111 8px,
     #111 11px,
-    #111 15px,
-    transparent 15px,
-    transparent 18px
+    transparent 11px,
+    transparent 13px,
+    #111 13px,
+    #111 14px,
+    transparent 14px,
+    transparent 16px
   );
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
-.card-id {
+.barcode-motto {
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  color: #888;
-  letter-spacing: 3px;
+  font-size: 0.45rem;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: 0.2px;
+}
+
+.inner-bottom-bar {
+  width: 100%;
+  background: #d32f2f;
+  color: white;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  padding: 6px 0;
+  margin-top: auto;
 }
 
 /* 
