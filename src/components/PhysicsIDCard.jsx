@@ -293,9 +293,10 @@ const PhysicsIDCard = ({ imageSrc }) => {
             </div>
           </div>
 
-          {/* Realistic PVC Surface & Lighting Overlays */}
-          <div className="physics-card-texture"></div>
-          <div className="physics-card-shine" ref={shineRef}></div>
+          <div className="physics-card-overlay">
+            <div className="physics-card-texture"></div>
+            <div className="physics-card-shine" ref={shineRef}></div>
+          </div>
         </div>
       </div>
     </div>
