@@ -27,8 +27,8 @@
   left: 50%;
   /* translate3d and rotations are handled by physics engine inline styles */
   transform-style: preserve-3d;
-  width: 320px;
-  height: 480px;
+  width: 340px;
+  height: 520px;
   z-index: 10;
   cursor: grab;
   /* Improve rendering performance */
@@ -175,6 +175,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   color: #555;
+  text-align: center;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: auto;
@@ -257,8 +258,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 320px;
-  height: 480px;
+  width: 340px;
+  height: 520px;
   background: rgba(0,0,0,0.8);
   border-radius: 20px;
   /* Transform is fully handled by JS */

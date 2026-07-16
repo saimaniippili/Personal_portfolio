@@ -108,8 +108,8 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // Calculate exact attachment point of the clip on the rotated card
-      // The card is 480px tall (center is 240px). The clip is 45px above the card.
-      const clipDistance = 240 + 45 - 15; // Adjusted slightly for the clip hole center
+      // The card is 520px tall (center is 260px). The clip is 45px above the card.
+      const clipDistance = 260 + 45 - 15; // Adjusted slightly for the clip hole center
       
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
