@@ -66,9 +66,13 @@ const PhysicsIDCard = ({ imageSrc }) => {
       const s = state.current;
       const c = constants;
       
+      // Pivot coordinates must be scoped to the whole function!
+      const pivotX = 0;
+      const pivotY = -350; 
+      
       if (!s.hasDropped) {
-        // Hold the card out of view until we drop it
-        s.y = -1000;
+        // Hold the card exactly at the pivot, waiting to drop
+        s.y = pivotY;
         s.vy = 0;
         s.vx = 0;
       } else {
@@ -82,14 +86,10 @@ const PhysicsIDCard = ({ imageSrc }) => {
         s.vx += windForceX * dt;
 
         // 2. Lanyard Constraint (Spring toward pivot)
-        const pivotX = 0;
-        const pivotY = -350; // Lowered pivot to keep it within the About section
-        
         const dx = pivotX - s.x;
         const dy = pivotY - s.y;
         const distance = Math.sqrt(dx * dx + dy * dy) || 1;
         
-        // When dropping in, don't let the spring push it down faster than gravity
         // Only apply tension if the string is stretched past its length
         if (distance > c.lanyardLength || s.y > pivotY) {
           const stretch = distance - c.lanyardLength;
@@ -117,8 +117,11 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // 6. Calculate True 3D Rotations
-      // Z-rotation perfectly aligns with the lanyard string direction
-      const angleZ = Math.atan2(s.y - pivotY, s.x - pivotX) - (Math.PI / 2); 
+      // Prevent instant flip when dropping from exactly at the pivot
+      let angleZ = 0;
+      if (s.y > pivotY) {
+        angleZ = Math.atan2(s.y - pivotY, s.x - pivotX) - (Math.PI / 2); 
+      }
       
       // Y-rotation comes from X-velocity (air resistance twisting it)
       const rY = s.vx * 1.2;
@@ -145,29 +148,51 @@ const PhysicsIDCard = ({ imageSrc }) => {
 
       // Update SVG Lanyard path
       if (lanyardStrapLeftRef.current && lanyardStrapRightRef.current) {
-        // Bowing effect based on velocity
-        const bowX = s.vx * 0.5;
-        const bowY = s.vy * 0.5;
+        // Hide string if the card is above the pivot (slack/bundled up)
+        const stringVisible = attachY > pivotY;
         
-        const neckWidth = 60;
-        const clipWidth = 12; // Distance between left and right straps at the clip
-        
-        const cosZ = Math.cos(angleZ);
-        const sinZ = Math.sin(angleZ);
-        
-        const clipLeftX = attachX - clipWidth * cosZ;
-        const clipLeftY = attachY - clipWidth * sinZ;
-        const clipRightX = attachX + clipWidth * cosZ;
-        const clipRightY = attachY + clipWidth * sinZ;
-        
-        const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${attachX * 0.5 - bowX} ${attachY * 0.5 - bowY} ${clipLeftX} ${clipLeftY}`;
-        const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${attachX * 0.5 - bowX} ${attachY * 0.5 - bowY} ${clipRightX} ${clipRightY}`;
+        if (!stringVisible) {
+          lanyardStrapLeftRef.current.style.opacity = '0';
+          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.style.opacity = '0';
+          lanyardStrapRightRef.current.style.opacity = '0';
+          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.style.opacity = '0';
+        } else {
+          lanyardStrapLeftRef.current.style.opacity = '1';
+          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.style.opacity = '0.5';
+          lanyardStrapRightRef.current.style.opacity = '1';
+          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.style.opacity = '0.5';
+          
+          // Bowing effect based on velocity
+          const bowX = s.vx * 0.5;
+          const bowY = s.vy * 0.5;
+          
+          const neckWidth = 60;
+          const clipWidth = 12; // Distance between left and right straps at the clip
+          
+          const cosZ = Math.cos(angleZ);
+          const sinZ = Math.sin(angleZ);
+          
+          const clipLeftX = attachX - clipWidth * cosZ;
+          const clipLeftY = attachY - clipWidth * sinZ;
+          const clipRightX = attachX + clipWidth * cosZ;
+          const clipRightY = attachY + clipWidth * sinZ;
 
-        lanyardStrapLeftRef.current.setAttribute('d', leftPath);
-        if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.setAttribute('d', leftPath);
-        
-        lanyardStrapRightRef.current.setAttribute('d', rightPath);
-        if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.setAttribute('d', rightPath);
+          // Calculate true midpoints for the bezier control points
+          const midLeftX = (pivotX - neckWidth + clipLeftX) / 2;
+          const midLeftY = (pivotY + clipLeftY) / 2;
+          
+          const midRightX = (pivotX + neckWidth + clipRightX) / 2;
+          const midRightY = (pivotY + clipRightY) / 2;
+          
+          const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${midLeftX - bowX} ${midLeftY - bowY} ${clipLeftX} ${clipLeftY}`;
+          const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${midRightX - bowX} ${midRightY - bowY} ${clipRightX} ${clipRightY}`;
+
+          lanyardStrapLeftRef.current.setAttribute('d', leftPath);
+          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.setAttribute('d', leftPath);
+          
+          lanyardStrapRightRef.current.setAttribute('d', rightPath);
+          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.setAttribute('d', rightPath);
+        }
       }
 
       // Dynamic Shine (Physical Reflection)
@@ -294,6 +319,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
         className="physics-card-wrapper" 
         ref={cardRef}
         onPointerDown={handlePointerDown}
+        style={{ opacity: state.current.hasDropped ? 1 : 0, transition: 'opacity 0.2s ease-in-out' }}
       >
         <div className="physics-card-body">
           {/* Lanyard Hardware Assembly */}
