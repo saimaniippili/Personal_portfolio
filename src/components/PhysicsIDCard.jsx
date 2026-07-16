@@ -14,7 +14,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
   // Physics State variables
   const state = useRef({
     x: 0,
-    y: -1000, // Start way above the screen
+    y: -800, // Start well above the viewport
     vx: 0,
     vy: 0,
     isDragging: false,
@@ -29,7 +29,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
     friction: 0.94, // Damping (air resistance)
     springTension: 0.12, // Stiffness of the lanyard
     mouseSpringTension: 0.08, // Strength of user's pull
-    lanyardLength: 400, // Reduced to prevent bleeding into hero section
+    lanyardLength: 1050, // Extended so the pivot can be way off screen
     windStrength: 0.015, // Micro-oscillations
     mass: 1.5 // Adds weight to the card
   };
@@ -41,6 +41,9 @@ const PhysicsIDCard = ({ imageSrc }) => {
         const [entry] = entries;
         if (entry.isIntersecting && !state.current.hasDropped) {
           state.current.hasDropped = true;
+          // Give it a gentle chaotic toss when it drops!
+          state.current.vx = (Math.random() - 0.5) * 15;
+          state.current.vy = 8;
         }
       },
       { threshold: 0.3 } // Trigger when 30% of the container is visible
@@ -68,11 +71,11 @@ const PhysicsIDCard = ({ imageSrc }) => {
       
       // Pivot coordinates must be scoped to the whole function!
       const pivotX = 0;
-      const pivotY = -350; 
+      const pivotY = -1000; // Wall pin is way above the screen
       
       if (!s.hasDropped) {
-        // Hold the card exactly at the pivot, waiting to drop
-        s.y = pivotY;
+        // Hold the card well above the viewport, waiting to drop
+        s.y = -800;
         s.vy = 0;
         s.vx = 0;
       } else {
@@ -146,6 +149,12 @@ const PhysicsIDCard = ({ imageSrc }) => {
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
 
+      // Distance from pivot to clip (used for slack calculation)
+      const clipDx = pivotX - attachX;
+      const clipDy = pivotY - attachY;
+      const clipDist = Math.sqrt(clipDx * clipDx + clipDy * clipDy) || 1;
+      const slack = Math.max(0, c.lanyardLength - clipDist);
+
       // Update SVG Lanyard path
       if (lanyardStrapLeftRef.current && lanyardStrapRightRef.current) {
         // Hide string if the card is above the pivot (slack/bundled up)
@@ -178,11 +187,13 @@ const PhysicsIDCard = ({ imageSrc }) => {
           const clipRightY = attachY + clipWidth * sinZ;
 
           // Calculate true midpoints for the bezier control points
+          const sagY = slack * 0.8; // The string sags downwards due to gravity when slack
+          
           const midLeftX = (pivotX - neckWidth + clipLeftX) / 2;
-          const midLeftY = (pivotY + clipLeftY) / 2;
+          const midLeftY = (pivotY + clipLeftY) / 2 + sagY;
           
           const midRightX = (pivotX + neckWidth + clipRightX) / 2;
-          const midRightY = (pivotY + clipRightY) / 2;
+          const midRightY = (pivotY + clipRightY) / 2 + sagY;
           
           const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${midLeftX - bowX} ${midLeftY - bowY} ${clipLeftX} ${clipLeftY}`;
           const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${midRightX - bowX} ${midRightY - bowY} ${clipRightX} ${clipRightY}`;
@@ -289,7 +300,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
           position: 'absolute', 
           top: '50%', 
           left: '50%', 
-          transform: `translate(calc(-50% + 0px), calc(-50% + -350px))`,
+          transform: `translate(calc(-50% + 0px), calc(-50% + -1000px))`,
           zIndex: 15
         }}
       ></div>
@@ -319,7 +330,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
         className="physics-card-wrapper" 
         ref={cardRef}
         onPointerDown={handlePointerDown}
-        style={{ opacity: state.current.hasDropped ? 1 : 0, transition: 'opacity 0.2s ease-in-out' }}
+        /* No opacity transition, perfectly sharp and solid from frame 1 */
       >
         <div className="physics-card-body">
           {/* Lanyard Hardware Assembly */}

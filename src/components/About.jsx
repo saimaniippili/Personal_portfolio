@@ -71,10 +71,9 @@ const About = () => {
             {aboutText}
           </p>
         </ScrollReveal>
-        
-        <ScrollReveal className="about-image-column" delay={0.3}>
+        <div className="about-image-column">
           <PhysicsIDCard imageSrc={imageSrc} />
-        </ScrollReveal>
+        </div>
 
       </div>
     </section>
