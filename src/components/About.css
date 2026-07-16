@@ -6,6 +6,8 @@
   min-height: 80vh;
   display: flex;
   align-items: center;
+  /* Perfectly clip exactly above the torn paper to prevent hero section bleed without cropping card swings */
+  clip-path: polygon(-100% -40px, 200% -40px, 200% 200%, -100% 200%);
 }
 
 /* Fix torn text color for light background */

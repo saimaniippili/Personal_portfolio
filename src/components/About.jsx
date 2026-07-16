@@ -58,8 +58,7 @@ const About = () => {
         <path d="M0,20 L0,0 L50,15 L100,5 L150,18 L200,2 L250,12 L300,4 L350,16 L400,6 L450,14 L500,2 L550,17 L600,5 L650,13 L700,1 L750,18 L800,8 L850,15 L900,3 L950,11 L1000,0 L1000,20 Z" fill="var(--bg-light)" />
       </svg>
       
-      <div className="about-content-clip-wrapper" style={{ overflow: 'hidden', width: '100%', position: 'relative' }}>
-        <div className="about-container">
+      <div className="about-container">
           
           <ScrollReveal 
             className="about-text-column"
@@ -79,7 +78,6 @@ const About = () => {
           </div>
 
         </div>
-      </div>
     </section>
   );
 };
