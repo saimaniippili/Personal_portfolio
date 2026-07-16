@@ -159,9 +159,16 @@ const PhysicsIDCard = ({ imageSrc }) => {
         const clipLeftY = attachY - clipWidth * sinZ;
         const clipRightX = attachX + clipWidth * cosZ;
         const clipRightY = attachY + clipWidth * sinZ;
+
+        // Calculate true midpoints for the bezier control points
+        const midLeftX = (pivotX - neckWidth + clipLeftX) / 2;
+        const midLeftY = (pivotY + clipLeftY) / 2;
         
-        const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${attachX * 0.5 - bowX} ${attachY * 0.5 - bowY} ${clipLeftX} ${clipLeftY}`;
-        const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${attachX * 0.5 - bowX} ${attachY * 0.5 - bowY} ${clipRightX} ${clipRightY}`;
+        const midRightX = (pivotX + neckWidth + clipRightX) / 2;
+        const midRightY = (pivotY + clipRightY) / 2;
+        
+        const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${midLeftX - bowX} ${midLeftY - bowY} ${clipLeftX} ${clipLeftY}`;
+        const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${midRightX - bowX} ${midRightY - bowY} ${clipRightX} ${clipRightY}`;
 
         lanyardStrapLeftRef.current.setAttribute('d', leftPath);
         if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.setAttribute('d', leftPath);
