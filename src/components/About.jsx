@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { personalInfo } from '../constants';
 import profileImgFallback from '../assets/profile.png';
 import './About.css';
+import PhysicsIDCard from './PhysicsIDCard';
 
 import ScrollReveal from './ScrollReveal';
 
@@ -11,22 +11,6 @@ const About = () => {
   const [profile, setProfile] = useState(null);
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  // Framer Motion Drag & Spring Physics
-  const dragX = useMotionValue(0);
-  const dragY = useMotionValue(0);
-  
-  const springConfig = { damping: 15, stiffness: 150 };
-  const xSpring = useSpring(dragX, springConfig);
-  const ySpring = useSpring(dragY, springConfig);
-
-  // Map drag distance to rotation (tilt in direction of pull)
-  const rotateX = useTransform(ySpring, [-200, 200], [20, -20]);
-  const rotateY = useTransform(xSpring, [-200, 200], [-20, 20]);
-
-  // Combine global mouse hover tilt with physical drag tilt
-  const combinedRotateX = useTransform(() => rotateX.get() + (mousePos.y * -5));
-  const combinedRotateY = useTransform(() => rotateY.get() + (mousePos.x * 5));
 
   useEffect(() => {
     fetchProfile();
@@ -89,50 +73,7 @@ const About = () => {
         </ScrollReveal>
         
         <ScrollReveal className="about-image-column" delay={0.3}>
-          <div className="id-card-container">
-            {/* Hanging Lanyard String */}
-            <div className="lanyard-string" style={{
-              transform: `rotate(${mousePos.x * 10}deg)`
-            }}></div>
-            
-            <motion.div
-              className="id-badge"
-              drag
-              dragSnapToOrigin
-              dragElastic={0.2}
-              style={{
-                x: dragX,
-                y: dragY,
-                rotateX: combinedRotateX,
-                rotateY: combinedRotateY,
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileDrag={{ scale: 1.08, cursor: 'grabbing', zIndex: 50 }}
-            >
-              <div className="id-badge-hole">
-                <div className="lanyard-clip"></div>
-              </div>
-              <div className="id-badge-content">
-                <div className="id-badge-header">
-                  <span className="company">AI & ML PORTFOLIO</span>
-                </div>
-                <img 
-                  src={imageSrc} 
-                  alt="Saimani Ippili" 
-                  className="id-badge-photo" 
-                />
-                <h3 className="id-badge-name">Saimani</h3>
-                <p className="id-badge-role">Machine Learning Engineer</p>
-                <div className="id-badge-footer">
-                  <div className="barcode"></div>
-                  <div className="id-number">ID: 001-AI-ML</div>
-                </div>
-              </div>
-              
-              {/* Glassmorphism Shine Overlay */}
-              <div className="id-badge-shine"></div>
-            </motion.div>
-          </div>
+          <PhysicsIDCard imageSrc={imageSrc} />
         </ScrollReveal>
 
       </div>
