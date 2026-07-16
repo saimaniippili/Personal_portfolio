@@ -293,18 +293,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
   return (
     <div className="physics-card-container" ref={containerRef}>
       
-      {/* Pivot point visual (Pin) */}
-      <div 
-        className="lanyard-pin" 
-        style={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: `translate(calc(-50% + 0px), calc(-50% + -1000px))`,
-          zIndex: 15
-        }}
-      ></div>
-
       {/* SVG Lanyard Straps */}
       <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none' }}>
         <defs>

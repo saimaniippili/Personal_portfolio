@@ -8,6 +8,8 @@
   perspective: 2000px;
   /* Disable interaction on container so mouse tracking isn't interrupted */
   touch-action: none;
+  /* Clip everything ABOVE the container, but allow overflow below and on the sides */
+  clip-path: polygon(-50% 0%, 150% 0%, 150% 200%, -50% 200%);
 }
 
 .lanyard-svg {
