@@ -30,10 +30,13 @@
   transform-style: preserve-3d;
   width: 340px;
   height: 520px;
-  z-index: 10;
+  z-index: 999;
   cursor: grab;
   /* Improve rendering performance */
   will-change: transform;
+  /* Prevent mobile scroll and text selection while dragging */
+  touch-action: none;
+  user-select: none;
 }
 
 .physics-card-body {

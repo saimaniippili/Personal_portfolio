@@ -247,6 +247,11 @@ const PhysicsIDCard = ({ imageSrc }) => {
   }, []);
 
   const handlePointerDown = (e) => {
+    // Capture all pointer events to the card to prevent them falling through to the page
+    if (e.target && e.target.setPointerCapture) {
+      e.target.setPointerCapture(e.pointerId);
+    }
+    
     state.current.isDragging = true;
     updateMousePosition(e);
     if (cardRef.current) {
@@ -262,7 +267,14 @@ const PhysicsIDCard = ({ imageSrc }) => {
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e) => {
+    // Release pointer capture
+    if (e.target && e.target.releasePointerCapture) {
+      try {
+        e.target.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+    
     state.current.isDragging = false;
     if (cardRef.current) {
       cardRef.current.style.cursor = 'grab';
