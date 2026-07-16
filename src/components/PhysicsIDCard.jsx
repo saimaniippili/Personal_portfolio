@@ -14,13 +14,14 @@ const PhysicsIDCard = ({ imageSrc }) => {
   // Physics State variables
   const state = useRef({
     x: 0,
-    y: 50, // Resting y position (center of the card)
+    y: -1000, // Start way above the screen
     vx: 0,
     vy: 0,
     isDragging: false,
     mouseX: 0,
     mouseY: 0,
-    time: 0
+    time: 0,
+    hasDropped: false // Track if the initial drop has happened
   });
 
   const constants = {
@@ -34,6 +35,27 @@ const PhysicsIDCard = ({ imageSrc }) => {
   };
 
   useEffect(() => {
+    // 1. Set up Intersection Observer to trigger the drop
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !state.current.hasDropped) {
+          state.current.hasDropped = true;
+        }
+      },
+      { threshold: 0.3 } // Trigger when 30% of the container is visible
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) observer.unobserve(containerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
     let animationFrameId;
     let lastTime = performance.now();
 
@@ -44,48 +66,55 @@ const PhysicsIDCard = ({ imageSrc }) => {
       const s = state.current;
       const c = constants;
       
-      // 1. Ambient Wind (Micro-movements)
-      s.time += 0.01 * dt;
-      const windForceX = Math.sin(s.time * 2.5) * Math.cos(s.time * 1.5) * c.windStrength;
-      const windForceY = Math.cos(s.time * 1.2) * c.windStrength;
-      
-      // Apply Gravity and Wind
-      s.vy += (c.gravity + windForceY) * dt;
-      s.vx += windForceX * dt;
-
-      // 2. Lanyard Constraint (Spring toward pivot)
-      const pivotX = 0;
-      const pivotY = -350; // Lowered pivot to keep it within the About section
-      
-      const dx = pivotX - s.x;
-      const dy = pivotY - s.y;
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-      
-      const stretch = distance - c.lanyardLength;
-      // Force equals stretch times tension, divided by mass
-      const tensionForce = (stretch * c.springTension) / c.mass;
-      
-      s.vx += (dx / distance) * tensionForce * dt;
-      s.vy += (dy / distance) * tensionForce * dt;
-
-      // 3. Mouse Drag Force (Virtual Spring)
-      if (s.isDragging) {
-        // Dragging is a spring force connecting cursor to the center of the card
-        const dragDx = s.mouseX - s.x;
-        const dragDy = s.mouseY - s.y;
+      if (!s.hasDropped) {
+        // Hold the card out of view until we drop it
+        s.y = -1000;
+        s.vy = 0;
+        s.vx = 0;
+      } else {
+        // 1. Ambient Wind (Micro-movements)
+        s.time += 0.01 * dt;
+        const windForceX = Math.sin(s.time * 2.5) * Math.cos(s.time * 1.5) * c.windStrength;
+        const windForceY = Math.cos(s.time * 1.2) * c.windStrength;
         
-        s.vx += (dragDx * c.mouseSpringTension) / c.mass * dt;
-        s.vy += (dragDy * c.mouseSpringTension) / c.mass * dt;
+        // Apply Gravity and Wind
+        s.vy += (c.gravity + windForceY) * dt;
+        s.vx += windForceX * dt;
+
+        // 2. Lanyard Constraint (Spring toward pivot)
+        const pivotX = 0;
+        const pivotY = -350; // Lowered pivot to keep it within the About section
+        
+        const dx = pivotX - s.x;
+        const dy = pivotY - s.y;
+        const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+        
+        // When dropping in, don't let the spring push it down faster than gravity
+        // Only apply tension if the string is stretched past its length
+        if (distance > c.lanyardLength || s.y > pivotY) {
+          const stretch = distance - c.lanyardLength;
+          const tensionForce = (stretch * c.springTension) / c.mass;
+          s.vx += (dx / distance) * tensionForce * dt;
+          s.vy += (dy / distance) * tensionForce * dt;
+        }
+
+        // 3. Mouse Drag Force (Virtual Spring)
+        if (s.isDragging) {
+          const dragDx = s.mouseX - s.x;
+          const dragDy = s.mouseY - s.y;
+          s.vx += (dragDx * c.mouseSpringTension) / c.mass * dt;
+          s.vy += (dragDy * c.mouseSpringTension) / c.mass * dt;
+        }
+
+        // 4. Apply Damping (Friction/Air resistance)
+        const dampingFactor = Math.pow(c.friction, dt);
+        s.vx *= dampingFactor;
+        s.vy *= dampingFactor;
+
+        // 5. Apply Velocity
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
       }
-
-      // 4. Apply Damping (Friction/Air resistance)
-      const dampingFactor = Math.pow(c.friction, dt);
-      s.vx *= dampingFactor;
-      s.vy *= dampingFactor;
-
-      // 5. Apply Velocity
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
 
       // 6. Calculate True 3D Rotations
       // Z-rotation perfectly aligns with the lanyard string direction
