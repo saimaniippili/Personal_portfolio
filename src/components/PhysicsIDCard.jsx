@@ -5,14 +5,16 @@ const PhysicsIDCard = ({ imageSrc }) => {
   const containerRef = useRef(null);
   const cardRef = useRef(null);
   const lanyardStrapLeftRef = useRef(null);
+  const lanyardStrapLeftTextureRef = useRef(null);
   const lanyardStrapRightRef = useRef(null);
+  const lanyardStrapRightTextureRef = useRef(null);
   const shineRef = useRef(null);
   const shadowRef = useRef(null);
   
   // Physics State variables
   const state = useRef({
     x: 0,
-    y: 200, // Resting y position
+    y: 50, // Resting y position (center of the card)
     vx: 0,
     vy: 0,
     isDragging: false,
@@ -26,7 +28,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
     friction: 0.94, // Damping (air resistance)
     springTension: 0.12, // Stiffness of the lanyard
     mouseSpringTension: 0.08, // Strength of user's pull
-    lanyardLength: 220,
+    lanyardLength: 650, // Distance from pivot to center of mass
     windStrength: 0.015, // Micro-oscillations
     mass: 1.5 // Adds weight to the card
   };
@@ -53,7 +55,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
 
       // 2. Lanyard Constraint (Spring toward pivot)
       const pivotX = 0;
-      const pivotY = -150; // Pivot is high above the container to allow a long lanyard
+      const pivotY = -600; // Pivot is very high up to allow a long visible string
       
       const dx = pivotX - s.x;
       const dy = pivotY - s.y;
@@ -77,7 +79,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // 4. Apply Damping (Friction/Air resistance)
-      // We apply friction based on delta time
       const dampingFactor = Math.pow(c.friction, dt);
       s.vx *= dampingFactor;
       s.vy *= dampingFactor;
@@ -98,7 +99,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
 
       // 7. Update DOM Elements using translate3d for GPU acceleration
       if (cardRef.current) {
-        // The card is positioned centered on s.x, s.y
         cardRef.current.style.transform = `
           translate3d(calc(-50% + ${s.x}px), calc(-50% + ${s.y}px), 0)
           rotateZ(${angleZ}rad)
@@ -107,47 +107,43 @@ const PhysicsIDCard = ({ imageSrc }) => {
         `;
       }
 
+      // Calculate exact attachment point of the clip on the rotated card
+      // The card is 480px tall (center is 240px). The clip is 45px above the card.
+      const clipDistance = 240 + 45 - 15; // Adjusted slightly for the clip hole center
+      
+      const attachX = s.x + clipDistance * Math.sin(angleZ);
+      const attachY = s.y - clipDistance * Math.cos(angleZ);
+
       // Update SVG Lanyard path
       if (lanyardStrapLeftRef.current && lanyardStrapRightRef.current) {
-        // Draw two straps coming from a single neck loop down to the clip
-        // Adding a slight curve based on velocity (bowing effect)
+        // Bowing effect based on velocity
         const bowX = s.vx * 0.5;
         const bowY = s.vy * 0.5;
         
-        // Offset left and right straps at the neck and clip
         const neckWidth = 60;
-        const clipWidth = 15;
+        const clipWidth = 12; // Distance between left and right straps at the clip
         
-        // Math to orient the clip width based on angleZ
         const cosZ = Math.cos(angleZ);
         const sinZ = Math.sin(angleZ);
         
-        const clipLeftX = s.x - clipWidth * cosZ;
-        const clipLeftY = s.y - clipWidth * sinZ;
-        const clipRightX = s.x + clipWidth * cosZ;
-        const clipRightY = s.y + clipWidth * sinZ;
+        const clipLeftX = attachX - clipWidth * cosZ;
+        const clipLeftY = attachY - clipWidth * sinZ;
+        const clipRightX = attachX + clipWidth * cosZ;
+        const clipRightY = attachY + clipWidth * sinZ;
         
-        // Left Strap
-        lanyardStrapLeftRef.current.setAttribute('d', 
-          `M ${pivotX - neckWidth} ${pivotY} 
-           Q ${s.x * 0.5 - bowX} ${s.y * 0.5 - bowY} 
-           ${clipLeftX} ${clipLeftY}`
-        );
+        const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${attachX * 0.5 - bowX} ${attachY * 0.5 - bowY} ${clipLeftX} ${clipLeftY}`;
+        const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${attachX * 0.5 - bowX} ${attachY * 0.5 - bowY} ${clipRightX} ${clipRightY}`;
+
+        lanyardStrapLeftRef.current.setAttribute('d', leftPath);
+        if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.setAttribute('d', leftPath);
         
-        // Right Strap
-        lanyardStrapRightRef.current.setAttribute('d', 
-          `M ${pivotX + neckWidth} ${pivotY} 
-           Q ${s.x * 0.5 - bowX} ${s.y * 0.5 - bowY} 
-           ${clipRightX} ${clipRightY}`
-        );
+        lanyardStrapRightRef.current.setAttribute('d', rightPath);
+        if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.setAttribute('d', rightPath);
       }
 
       // Dynamic Shine (Physical Reflection)
       if (shineRef.current) {
-        // Shine moves across the card naturally as it rotates in 3D
-        // Map rotations to background position
         const shineX = 50 + rY * 2;
-        const shineY = 50 + rX * 2;
         const angle = angleZ * (180/Math.PI) + 135;
         
         shineRef.current.style.background = `linear-gradient(${angle}deg, 
@@ -160,10 +156,9 @@ const PhysicsIDCard = ({ imageSrc }) => {
 
       // Dynamic Soft Shadow
       if (shadowRef.current) {
-        // Shadow is cast behind the card and moves opposite to light
         const shadowX = -s.vx * 1.5;
-        const shadowY = Math.max(10, 40 - s.vy * 1.5); // Drops lower when swinging forward
-        const shadowBlur = Math.max(15, 30 + Math.abs(s.vx) + Math.abs(s.vy)); // Blurs more when moving faster
+        const shadowY = Math.max(10, 40 - s.vy * 1.5);
+        const shadowBlur = Math.max(15, 30 + Math.abs(s.vx) + Math.abs(s.vy));
         
         shadowRef.current.style.transform = `
           translate3d(calc(-50% + ${s.x + shadowX}px), calc(-50% + ${s.y + shadowY}px), -50px)
@@ -171,10 +166,9 @@ const PhysicsIDCard = ({ imageSrc }) => {
           rotateY(${rY * 0.5}deg)
           rotateX(${rX * 0.5}deg)
           scale(${1 - Math.max(0, s.vy * 0.005)}) 
-        `; // Scale down slightly when it swings away
+        `;
         
         shadowRef.current.style.filter = `blur(${shadowBlur}px)`;
-        // Darken shadow when card comes closer
         const opacity = Math.min(0.6, 0.3 + Math.abs(s.vx)*0.01 + Math.abs(s.vy)*0.01);
         shadowRef.current.style.opacity = opacity;
       }
@@ -192,7 +186,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
     updateMousePosition(e);
     if (cardRef.current) {
       cardRef.current.style.cursor = 'grabbing';
-      // Enhance shine and lift slightly when grabbed to simulate pulling it closer
       if (shineRef.current) shineRef.current.style.opacity = '1';
     }
     document.body.style.userSelect = 'none';
@@ -216,7 +209,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
   const updateMousePosition = (e) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    // Calculate mouse position relative to the center of the container
     const pivotX = rect.left + rect.width / 2;
     const pivotY = rect.top + rect.height / 2; 
     
@@ -237,22 +229,20 @@ const PhysicsIDCard = ({ imageSrc }) => {
     <div className="physics-card-container" ref={containerRef}>
       
       {/* SVG Lanyard Straps */}
-      <svg className="lanyard-svg" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'visible', pointerEvents: 'none' }}>
+      <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none' }}>
         <defs>
-          {/* Fabric texture pattern for the lanyard */}
           <pattern id="fabric" patternUnits="userSpaceOnUse" width="4" height="4">
             <path d="M 0,4 l 4,-4 M -1,1 l 2,-2 M 3,5 l 2,-2" stroke="#222" strokeWidth="1" />
           </pattern>
         </defs>
         
-        {/* We use SVG group centered at the middle of the container so coordinates match the physics Engine (where 0,0 is center of container) */}
-        <g transform="translate(50%, 50%)">
-          {/* Left Strap Base & Texture */}
-          <path ref={lanyardStrapLeftRef} stroke="#1a1a1a" strokeWidth="14" fill="none" strokeLinecap="round" />
-          
-          {/* Right Strap Base & Texture */}
-          <path ref={lanyardStrapRightRef} stroke="#1a1a1a" strokeWidth="14" fill="none" strokeLinecap="round" />
-        </g>
+        {/* Left Strap Base & Texture */}
+        <path ref={lanyardStrapLeftRef} stroke="#1a1a1a" strokeWidth="14" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftTextureRef} stroke="url(#fabric)" strokeWidth="14" fill="none" strokeLinecap="round" opacity="0.5" />
+        
+        {/* Right Strap Base & Texture */}
+        <path ref={lanyardStrapRightRef} stroke="#1a1a1a" strokeWidth="14" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightTextureRef} stroke="url(#fabric)" strokeWidth="14" fill="none" strokeLinecap="round" opacity="0.5" />
       </svg>
 
       {/* Dynamic Detached Shadow for realistic depth */}
