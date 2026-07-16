@@ -148,7 +148,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // Calculate exact attachment point of the clip on the rotated card
-      const clipDistance = 260 + 85; // Distance from center of card to the swivel hardware attachment point
+      const clipDistance = 260 + 73; // Attach precisely to the center of the metal O-ring
       
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
@@ -181,7 +181,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
         const bowY = s.vy * 0.5;
         
         const neckWidth = 60;
-        const clipWidth = 10;
+        const clipWidth = 6; // Narrow width to fit completely inside the metal O-ring
         
         // The swivel hardware rotation allows the strings to come straight in
         // So we calculate where the hardware is pointing based on the curve tangent
@@ -330,25 +330,29 @@ const PhysicsIDCard = ({ imageSrc }) => {
       {/* SVG Lanyard Straps */}
       <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none' }}>
         <defs>
-          <pattern id="fabric" patternUnits="userSpaceOnUse" width="4" height="4">
-            <path d="M0 4L4 0M-1 1L1 -1M3 5L5 3" stroke="rgba(0,0,0,0.3)" strokeWidth="1"/>
+          <pattern id="woven" patternUnits="userSpaceOnUse" width="6" height="6">
+            <path d="M0 0 L6 6 M0 6 L6 0" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5"/>
+            <path d="M3 0 L3 6 M0 3 L6 3" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5"/>
           </pattern>
+          <filter id="strap-shadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.4" />
+          </filter>
         </defs>
         
         {/* LEFT STRAP */}
-        <path id="left-strap-path" ref={lanyardStrapLeftRef} stroke="#bd2b31" strokeWidth="20" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapLeftStitchRef} stroke="#111" strokeWidth="18" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapLeftCoreRef} stroke="#bd2b31" strokeWidth="14" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapLeftTextureRef} stroke="url(#fabric)" strokeWidth="20" fill="none" strokeLinecap="round" />
+        <path id="left-strap-path" ref={lanyardStrapLeftRef} stroke="#a01a20" strokeWidth="22" fill="none" strokeLinecap="round" filter="url(#strap-shadow)" />
+        <path ref={lanyardStrapLeftStitchRef} stroke="#111" strokeWidth="20" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftCoreRef} stroke="#cc292f" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftTextureRef} stroke="url(#woven)" strokeWidth="22" fill="none" strokeLinecap="round" />
         <text fontSize="9" fill="#111" fontWeight="800" letterSpacing="1.5">
            <textPath href="#left-strap-path" startOffset="50%" textAnchor="middle" dominantBaseline="central">AI ML ENGINEER</textPath>
         </text>
 
         {/* RIGHT STRAP */}
-        <path id="right-strap-path" ref={lanyardStrapRightRef} stroke="#bd2b31" strokeWidth="20" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapRightStitchRef} stroke="#111" strokeWidth="18" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapRightCoreRef} stroke="#bd2b31" strokeWidth="14" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapRightTextureRef} stroke="url(#fabric)" strokeWidth="20" fill="none" strokeLinecap="round" />
+        <path id="right-strap-path" ref={lanyardStrapRightRef} stroke="#a01a20" strokeWidth="22" fill="none" strokeLinecap="round" filter="url(#strap-shadow)" />
+        <path ref={lanyardStrapRightStitchRef} stroke="#111" strokeWidth="20" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightCoreRef} stroke="#cc292f" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightTextureRef} stroke="url(#woven)" strokeWidth="22" fill="none" strokeLinecap="round" />
         <text fontSize="9" fill="#111" fontWeight="800" letterSpacing="1.5">
            <textPath href="#right-strap-path" startOffset="50%" textAnchor="middle" dominantBaseline="central">BUILDING INTELLIGENCE</textPath>
         </text>
