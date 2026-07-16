@@ -4,10 +4,19 @@ import './PhysicsIDCard.css';
 const PhysicsIDCard = ({ imageSrc }) => {
   const containerRef = useRef(null);
   const cardRef = useRef(null);
+  const hardwareRef = useRef(null);
+  
+  // Lanyard SVG Refs
   const lanyardStrapLeftRef = useRef(null);
+  const lanyardStrapLeftStitchRef = useRef(null);
+  const lanyardStrapLeftCoreRef = useRef(null);
   const lanyardStrapLeftTextureRef = useRef(null);
+  
   const lanyardStrapRightRef = useRef(null);
+  const lanyardStrapRightStitchRef = useRef(null);
+  const lanyardStrapRightCoreRef = useRef(null);
   const lanyardStrapRightTextureRef = useRef(null);
+  
   const shineRef = useRef(null);
   const shadowRef = useRef(null);
   
@@ -120,19 +129,15 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // 6. Calculate True 3D Rotations
-      // Prevent instant flip when dropping from exactly at the pivot
       let angleZ = 0;
       if (s.y > pivotY) {
         angleZ = Math.atan2(s.y - pivotY, s.x - pivotX) - (Math.PI / 2); 
       }
       
-      // Y-rotation comes from X-velocity (air resistance twisting it)
       const rY = s.vx * 1.2;
-      
-      // X-rotation comes from Y-velocity and drag tension
       const rX = -s.vy * 1.5 + (s.y - (pivotY + c.lanyardLength)) * -0.15;
 
-      // 7. Update DOM Elements using translate3d for GPU acceleration
+      // 7. Update DOM Elements
       if (cardRef.current) {
         cardRef.current.style.transform = `
           translate3d(calc(-50% + ${s.x}px), calc(-50% + ${s.y}px), 0)
@@ -143,8 +148,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // Calculate exact attachment point of the clip on the rotated card
-      // The card is 520px tall (center is 260px). The clip is 45px above the card.
-      const clipDistance = 260 + 45 - 15; // Adjusted slightly for the clip hole center
+      const clipDistance = 260 + 85; // Distance from center of card to the swivel hardware attachment point
       
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
@@ -155,55 +159,77 @@ const PhysicsIDCard = ({ imageSrc }) => {
       const clipDist = Math.sqrt(clipDx * clipDx + clipDy * clipDy) || 1;
       const slack = Math.max(0, c.lanyardLength - clipDist);
 
-      // Update SVG Lanyard path
-      if (lanyardStrapLeftRef.current && lanyardStrapRightRef.current) {
-        // Hide string if the card is above the pivot (slack/bundled up)
-        const stringVisible = attachY > pivotY;
-        
-        if (!stringVisible) {
-          lanyardStrapLeftRef.current.style.opacity = '0';
-          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.style.opacity = '0';
-          lanyardStrapRightRef.current.style.opacity = '0';
-          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.style.opacity = '0';
+      // Update SVG Lanyard paths
+      const stringVisible = attachY > pivotY;
+      
+      const updateSvgGroup = (refs, path, visible) => {
+        if (!visible) {
+          refs.forEach(ref => ref.current && (ref.current.style.opacity = '0'));
         } else {
-          lanyardStrapLeftRef.current.style.opacity = '1';
-          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.style.opacity = '0.5';
-          lanyardStrapRightRef.current.style.opacity = '1';
-          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.style.opacity = '0.5';
-          
-          // Bowing effect based on velocity
-          const bowX = s.vx * 0.5;
-          const bowY = s.vy * 0.5;
-          
-          const neckWidth = 60;
-          const clipWidth = 12; // Distance between left and right straps at the clip
-          
-          const cosZ = Math.cos(angleZ);
-          const sinZ = Math.sin(angleZ);
-          
-          const clipLeftX = attachX - clipWidth * cosZ;
-          const clipLeftY = attachY - clipWidth * sinZ;
-          const clipRightX = attachX + clipWidth * cosZ;
-          const clipRightY = attachY + clipWidth * sinZ;
-
-          // Calculate true midpoints for the bezier control points
-          const sagY = slack * 0.8; // The string sags downwards due to gravity when slack
-          
-          const midLeftX = (pivotX - neckWidth + clipLeftX) / 2;
-          const midLeftY = (pivotY + clipLeftY) / 2 + sagY;
-          
-          const midRightX = (pivotX + neckWidth + clipRightX) / 2;
-          const midRightY = (pivotY + clipRightY) / 2 + sagY;
-          
-          const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${midLeftX - bowX} ${midLeftY - bowY} ${clipLeftX} ${clipLeftY}`;
-          const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${midRightX - bowX} ${midRightY - bowY} ${clipRightX} ${clipRightY}`;
-
-          lanyardStrapLeftRef.current.setAttribute('d', leftPath);
-          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.setAttribute('d', leftPath);
-          
-          lanyardStrapRightRef.current.setAttribute('d', rightPath);
-          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.setAttribute('d', rightPath);
+          refs.forEach((ref, idx) => {
+            if (ref.current) {
+              ref.current.setAttribute('d', path);
+              // Set texture opacity to 0.7, others to 1
+              ref.current.style.opacity = idx === 3 ? '0.7' : '1';
+            }
+          });
         }
+      };
+
+      if (stringVisible) {
+        const bowX = s.vx * 0.5;
+        const bowY = s.vy * 0.5;
+        
+        const neckWidth = 60;
+        const clipWidth = 10;
+        
+        // The swivel hardware rotation allows the strings to come straight in
+        // So we calculate where the hardware is pointing based on the curve tangent
+        
+        const cosZ = Math.cos(angleZ);
+        const sinZ = Math.sin(angleZ);
+        
+        // Determine bezier control points with sag
+        const sagY = slack * 0.8;
+        
+        // These are world-space coordinates for the clip attachment points
+        // But since the swivel clip rotates, we'll just connect them to a central point to avoid twisting
+        const midLeftX = (pivotX - neckWidth + attachX) / 2;
+        const midLeftY = (pivotY + attachY) / 2 + sagY;
+        
+        const midRightX = (pivotX + neckWidth + attachX) / 2;
+        const midRightY = (pivotY + attachY) / 2 + sagY;
+        
+        // Calculate tangent vector at the clip to rotate the hardware naturally
+        const midCenterX = (midLeftX + midRightX) / 2 - bowX;
+        const midCenterY = (midLeftY + midRightY) / 2 - bowY;
+        const vecX = attachX - midCenterX;
+        const vecY = attachY - midCenterY;
+        
+        // Hardware world angle (atan2 points towards attach point)
+        const hardwareWorldAngle = Math.atan2(vecY, vecX) - (Math.PI / 2);
+        const hardwareLocalAngle = hardwareWorldAngle - angleZ; // Counteract card rotation
+        
+        if (hardwareRef.current) {
+          hardwareRef.current.style.transform = `translateX(-50%) rotateZ(${hardwareLocalAngle}rad)`;
+        }
+        
+        // Now calculate the actual clip attach points based on the hardware's world angle
+        const hCos = Math.cos(hardwareWorldAngle);
+        const hSin = Math.sin(hardwareWorldAngle);
+        const clipLeftX = attachX - clipWidth * hCos;
+        const clipLeftY = attachY - clipWidth * hSin;
+        const clipRightX = attachX + clipWidth * hCos;
+        const clipRightY = attachY + clipWidth * hSin;
+        
+        const leftPath = `M ${pivotX - neckWidth} ${pivotY} Q ${midLeftX - bowX} ${midLeftY - bowY} ${clipLeftX} ${clipLeftY}`;
+        const rightPath = `M ${pivotX + neckWidth} ${pivotY} Q ${midRightX - bowX} ${midRightY - bowY} ${clipRightX} ${clipRightY}`;
+
+        updateSvgGroup([lanyardStrapLeftRef, lanyardStrapLeftStitchRef, lanyardStrapLeftCoreRef, lanyardStrapLeftTextureRef], leftPath, true);
+        updateSvgGroup([lanyardStrapRightRef, lanyardStrapRightStitchRef, lanyardStrapRightCoreRef, lanyardStrapRightTextureRef], rightPath, true);
+      } else {
+        updateSvgGroup([lanyardStrapLeftRef, lanyardStrapLeftStitchRef, lanyardStrapLeftCoreRef, lanyardStrapLeftTextureRef], '', false);
+        updateSvgGroup([lanyardStrapRightRef, lanyardStrapRightStitchRef, lanyardStrapRightCoreRef, lanyardStrapRightTextureRef], '', false);
       }
 
       // Dynamic Shine (Physical Reflection)
@@ -247,7 +273,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
   }, []);
 
   const handlePointerDown = (e) => {
-    // Capture all pointer events to the card to prevent them falling through to the page
     if (e.target && e.target.setPointerCapture) {
       e.target.setPointerCapture(e.pointerId);
     }
@@ -268,11 +293,8 @@ const PhysicsIDCard = ({ imageSrc }) => {
   };
 
   const handlePointerUp = (e) => {
-    // Release pointer capture
     if (e.target && e.target.releasePointerCapture) {
-      try {
-        e.target.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+      try { e.target.releasePointerCapture(e.pointerId); } catch (err) {}
     }
     
     state.current.isDragging = false;
@@ -309,17 +331,27 @@ const PhysicsIDCard = ({ imageSrc }) => {
       <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none' }}>
         <defs>
           <pattern id="fabric" patternUnits="userSpaceOnUse" width="4" height="4">
-            <path d="M 0,4 l 4,-4 M -1,1 l 2,-2 M 3,5 l 2,-2" stroke="#222" strokeWidth="1" />
+            <path d="M0 4L4 0M-1 1L1 -1M3 5L5 3" stroke="rgba(0,0,0,0.3)" strokeWidth="1"/>
           </pattern>
         </defs>
         
-        {/* Left Strap Base & Texture */}
-        <path ref={lanyardStrapLeftRef} stroke="#1a1a1a" strokeWidth="14" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapLeftTextureRef} stroke="url(#fabric)" strokeWidth="14" fill="none" strokeLinecap="round" opacity="0.5" />
-        
-        {/* Right Strap Base & Texture */}
-        <path ref={lanyardStrapRightRef} stroke="#1a1a1a" strokeWidth="14" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapRightTextureRef} stroke="url(#fabric)" strokeWidth="14" fill="none" strokeLinecap="round" opacity="0.5" />
+        {/* LEFT STRAP */}
+        <path id="left-strap-path" ref={lanyardStrapLeftRef} stroke="#bd2b31" strokeWidth="20" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftStitchRef} stroke="#111" strokeWidth="18" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftCoreRef} stroke="#bd2b31" strokeWidth="14" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftTextureRef} stroke="url(#fabric)" strokeWidth="20" fill="none" strokeLinecap="round" />
+        <text fontSize="9" fill="#111" fontWeight="800" letterSpacing="1.5">
+           <textPath href="#left-strap-path" startOffset="50%" textAnchor="middle" dominantBaseline="central">AI ML ENGINEER</textPath>
+        </text>
+
+        {/* RIGHT STRAP */}
+        <path id="right-strap-path" ref={lanyardStrapRightRef} stroke="#bd2b31" strokeWidth="20" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightStitchRef} stroke="#111" strokeWidth="18" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightCoreRef} stroke="#bd2b31" strokeWidth="14" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightTextureRef} stroke="url(#fabric)" strokeWidth="20" fill="none" strokeLinecap="round" />
+        <text fontSize="9" fill="#111" fontWeight="800" letterSpacing="1.5">
+           <textPath href="#right-strap-path" startOffset="50%" textAnchor="middle" dominantBaseline="central">BUILDING INTELLIGENCE</textPath>
+        </text>
       </svg>
 
       {/* Dynamic Detached Shadow for realistic depth */}
@@ -330,22 +362,21 @@ const PhysicsIDCard = ({ imageSrc }) => {
         className="physics-card-wrapper" 
         ref={cardRef}
         onPointerDown={handlePointerDown}
-        /* No opacity transition, perfectly sharp and solid from frame 1 */
       >
+        {/* Hardware Swivel Assembly (Rotates independently of card based on tangent) */}
+        <div className="hardware-swivel-assembly" ref={hardwareRef}>
+          <div className="hardware-o-ring"></div>
+          <div className="hardware-lobster-clasp">
+            <div className="clasp-body"></div>
+            <div className="clasp-gate"></div>
+            <div className="clasp-hinge"></div>
+          </div>
+        </div>
+
         <div className="physics-card-body">
-          {/* Lanyard Hardware Assembly */}
-          <div className="hardware-assembly">
-            <div className="hardware-ring"></div>
-            <div className="hardware-clip">
-              <div className="hardware-clip-shine"></div>
-            </div>
-            <div className="hardware-hole">
-              <div className="hardware-hole-inner"></div>
-            </div>
-            
-            {/* Pill Cutouts in the plastic sleeve */}
-            <div className="sleeve-cutout left"></div>
-            <div className="sleeve-cutout right"></div>
+          {/* PVC Plastic Connector */}
+          <div className="pvc-connector">
+            <div className="pvc-connector-hole"></div>
           </div>
 
           <div className="physics-card-inner">
@@ -372,7 +403,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
             
             <div className="inner-details-area">
               <div className="qr-code">
-                {/* Simulated QR Code Pattern */}
                 <div className="qr-pattern"></div>
               </div>
               <div className="details-text">
@@ -408,3 +438,4 @@ const PhysicsIDCard = ({ imageSrc }) => {
 };
 
 export default PhysicsIDCard;
+
