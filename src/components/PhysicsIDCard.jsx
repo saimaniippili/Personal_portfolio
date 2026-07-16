@@ -14,7 +14,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
   // Physics State variables
   const state = useRef({
     x: 0,
-    y: -350, // Start exactly at the pivot point
+    y: -1000, // Start way above the screen
     vx: 0,
     vy: 0,
     isDragging: false,
@@ -67,8 +67,8 @@ const PhysicsIDCard = ({ imageSrc }) => {
       const c = constants;
       
       if (!s.hasDropped) {
-        // Hold the card exactly at the pivot, waiting to drop
-        s.y = -350;
+        // Hold the card out of view until we drop it
+        s.y = -1000;
         s.vy = 0;
         s.vx = 0;
       } else {
@@ -117,11 +117,8 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // 6. Calculate True 3D Rotations
-      // Prevent instant flip when dropping from exactly at the pivot
-      let angleZ = 0;
-      if (s.y > pivotY) {
-        angleZ = Math.atan2(s.y - pivotY, s.x - pivotX) - (Math.PI / 2); 
-      } 
+      // Z-rotation perfectly aligns with the lanyard string direction
+      const angleZ = Math.atan2(s.y - pivotY, s.x - pivotX) - (Math.PI / 2); 
       
       // Y-rotation comes from X-velocity (air resistance twisting it)
       const rY = s.vx * 1.2;
@@ -148,23 +145,9 @@ const PhysicsIDCard = ({ imageSrc }) => {
 
       // Update SVG Lanyard path
       if (lanyardStrapLeftRef.current && lanyardStrapRightRef.current) {
-        // Hide string if the card is above the pivot (slack/bundled up)
-        const stringVisible = attachY > pivotY;
-        
-        if (!stringVisible) {
-          lanyardStrapLeftRef.current.style.opacity = '0';
-          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.style.opacity = '0';
-          lanyardStrapRightRef.current.style.opacity = '0';
-          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.style.opacity = '0';
-        } else {
-          lanyardStrapLeftRef.current.style.opacity = '1';
-          if (lanyardStrapLeftTextureRef.current) lanyardStrapLeftTextureRef.current.style.opacity = '0.5';
-          lanyardStrapRightRef.current.style.opacity = '1';
-          if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.style.opacity = '0.5';
-          
-          // Bowing effect based on velocity
-          const bowX = s.vx * 0.5;
-          const bowY = s.vy * 0.5;
+        // Bowing effect based on velocity
+        const bowX = s.vx * 0.5;
+        const bowY = s.vy * 0.5;
         
         const neckWidth = 60;
         const clipWidth = 12; // Distance between left and right straps at the clip
@@ -192,7 +175,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
         
         lanyardStrapRightRef.current.setAttribute('d', rightPath);
         if (lanyardStrapRightTextureRef.current) lanyardStrapRightTextureRef.current.setAttribute('d', rightPath);
-        }
       }
 
       // Dynamic Shine (Physical Reflection)
@@ -319,7 +301,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
         className="physics-card-wrapper" 
         ref={cardRef}
         onPointerDown={handlePointerDown}
-        style={{ opacity: state.current.hasDropped ? 1 : 0, transition: 'opacity 0.2s ease-in-out' }}
       >
         <div className="physics-card-body">
           {/* Lanyard Hardware Assembly */}
