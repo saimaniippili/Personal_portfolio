@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { personalInfo } from '../constants';
 import profileImgFallback from '../assets/profile.png';
@@ -10,6 +11,22 @@ const About = () => {
   const [profile, setProfile] = useState(null);
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Framer Motion Drag & Spring Physics
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
+  
+  const springConfig = { damping: 15, stiffness: 150 };
+  const xSpring = useSpring(dragX, springConfig);
+  const ySpring = useSpring(dragY, springConfig);
+
+  // Map drag distance to rotation (tilt in direction of pull)
+  const rotateX = useTransform(ySpring, [-200, 200], [20, -20]);
+  const rotateY = useTransform(xSpring, [-200, 200], [-20, 20]);
+
+  // Combine global mouse hover tilt with physical drag tilt
+  const combinedRotateX = useTransform(() => rotateX.get() + (mousePos.y * -5));
+  const combinedRotateY = useTransform(() => rotateY.get() + (mousePos.x * 5));
 
   useEffect(() => {
     fetchProfile();
@@ -72,44 +89,49 @@ const About = () => {
         </ScrollReveal>
         
         <ScrollReveal className="about-image-column" delay={0.3}>
-          <div className="premium-image-wrapper">
-            <div 
-              className="dots-pattern"
-              style={{ transform: `translate(${mousePos.x * -15}px, ${mousePos.y * -15}px)` }}
-            ></div>
-            <div 
-              className="geometric-blob"
-              style={{ transform: `translateX(calc(-50% + ${mousePos.x * 10}px)) translateY(${mousePos.y * 10}px)` }}
-            ></div>
-            <div className="image-glow"></div>
-            <img 
-              src={imageSrc} 
-              alt="Saimani Ippili" 
-              className="premium-profile-image" 
-              style={{ transform: `translate(${mousePos.x * -5}px, ${mousePos.y * -5}px)` }}
-            />
+          <div className="id-card-container">
+            {/* Hanging Lanyard String */}
+            <div className="lanyard-string" style={{
+              transform: `rotate(${mousePos.x * 10}deg)`
+            }}></div>
             
-            <div 
-              className="laptop-accent"
-              style={{ transform: `rotate(-15deg) translate(${mousePos.x * 25}px, ${mousePos.y * 25}px)` }}
+            <motion.div
+              className="id-badge"
+              drag
+              dragSnapToOrigin
+              dragElastic={0.2}
+              style={{
+                x: dragX,
+                y: dragY,
+                rotateX: combinedRotateX,
+                rotateY: combinedRotateY,
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileDrag={{ scale: 1.08, cursor: 'grabbing', zIndex: 50 }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dark)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="80" height="80">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="2" y1="20" x2="22" y2="20"></line>
-              </svg>
-            </div>
-            <div 
-              className="side-text"
-              style={{ transform: `translateY(calc(-50% + ${mousePos.y * -20}px)) rotate(-90deg) translateX(${mousePos.x * -20}px)` }}
-            >
-              AI & ML
-            </div>
-            <div 
-              className="signature-accent"
-              style={{ transform: `rotate(-10deg) translate(${mousePos.x * 30}px, ${mousePos.y * 30}px)` }}
-            >
-              Saimani
-            </div>
+              <div className="id-badge-hole">
+                <div className="lanyard-clip"></div>
+              </div>
+              <div className="id-badge-content">
+                <div className="id-badge-header">
+                  <span className="company">AI & ML PORTFOLIO</span>
+                </div>
+                <img 
+                  src={imageSrc} 
+                  alt="Saimani Ippili" 
+                  className="id-badge-photo" 
+                />
+                <h3 className="id-badge-name">Saimani</h3>
+                <p className="id-badge-role">Machine Learning Engineer</p>
+                <div className="id-badge-footer">
+                  <div className="barcode"></div>
+                  <div className="id-number">ID: 001-AI-ML</div>
+                </div>
+              </div>
+              
+              {/* Glassmorphism Shine Overlay */}
+              <div className="id-badge-shine"></div>
+            </motion.div>
           </div>
         </ScrollReveal>
 
