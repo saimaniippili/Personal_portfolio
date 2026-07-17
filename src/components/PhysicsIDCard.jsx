@@ -138,17 +138,12 @@ const PhysicsIDCard = ({ imageSrc }) => {
       const rX = -s.vy * 1.5 + (s.y - (pivotY + c.lanyardLength)) * -0.15;
 
       // 7. Update DOM Elements
-      if (cardRef.current) {
-        cardRef.current.style.transform = `
-          translate3d(calc(-50% + ${s.x}px), calc(-50% + ${s.y}px), 0)
-          rotateZ(${angleZ}rad)
-          rotateY(${rY}deg)
-          rotateX(${rX}deg)
-        `;
-      }
-
-      // Calculate exact attachment point of the clip on the rotated card
-      const clipDistance = 260 + 85; // Attach precisely at the top of the fabric loop
+      // We position the hardware root at attachX, attachY
+      // The hardware points towards the pivot
+      // The card is inside the hardware, so its rotation is relative
+      
+      // Calculate exact attachment point of the clip at the top of the fabric loop
+      const clipDistance = 379; // Mathematically calculated hierarchy offset
       
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
@@ -169,52 +164,36 @@ const PhysicsIDCard = ({ imageSrc }) => {
           refs.forEach((ref, idx) => {
             if (ref.current) {
               ref.current.setAttribute('d', path);
-              // Set texture opacity to 0.7, others to 1
               ref.current.style.opacity = idx === 3 ? '0.7' : '1';
             }
           });
         }
       };
 
+      let hardwareWorldAngle = 0;
+
       if (stringVisible) {
         const bowX = s.vx * 0.5;
         const bowY = s.vy * 0.5;
         
         const neckWidth = 60;
-        const clipWidth = 6; // Narrow width to fit completely inside the metal O-ring
+        const clipWidth = 6; 
         
-        // The swivel hardware rotation allows the strings to come straight in
-        // So we calculate where the hardware is pointing based on the curve tangent
-        
-        const cosZ = Math.cos(angleZ);
-        const sinZ = Math.sin(angleZ);
-        
-        // Determine bezier control points with sag
         const sagY = slack * 0.8;
         
-        // These are world-space coordinates for the clip attachment points
-        // But since the swivel clip rotates, we'll just connect them to a central point to avoid twisting
         const midLeftX = (pivotX - neckWidth + attachX) / 2;
         const midLeftY = (pivotY + attachY) / 2 + sagY;
         
         const midRightX = (pivotX + neckWidth + attachX) / 2;
         const midRightY = (pivotY + attachY) / 2 + sagY;
         
-        // Calculate tangent vector at the clip to rotate the hardware naturally
         const midCenterX = (midLeftX + midRightX) / 2 - bowX;
         const midCenterY = (midLeftY + midRightY) / 2 - bowY;
         const vecX = attachX - midCenterX;
         const vecY = attachY - midCenterY;
         
-        // Hardware world angle (atan2 points towards attach point)
-        const hardwareWorldAngle = Math.atan2(vecY, vecX) - (Math.PI / 2);
-        const hardwareLocalAngle = hardwareWorldAngle - angleZ; // Counteract card rotation
+        hardwareWorldAngle = Math.atan2(vecY, vecX) - (Math.PI / 2);
         
-        if (hardwareRef.current) {
-          hardwareRef.current.style.transform = `translateX(-50%) rotateZ(${hardwareLocalAngle}rad)`;
-        }
-        
-        // Now calculate the actual clip attach points based on the hardware's world angle
         const hCos = Math.cos(hardwareWorldAngle);
         const hSin = Math.sin(hardwareWorldAngle);
         const clipLeftX = attachX - clipWidth * hCos;
@@ -230,6 +209,24 @@ const PhysicsIDCard = ({ imageSrc }) => {
       } else {
         updateSvgGroup([lanyardStrapLeftRef, lanyardStrapLeftStitchRef, lanyardStrapLeftCoreRef, lanyardStrapLeftTextureRef], '', false);
         updateSvgGroup([lanyardStrapRightRef, lanyardStrapRightStitchRef, lanyardStrapRightCoreRef, lanyardStrapRightTextureRef], '', false);
+      }
+
+      // Root Assembly Transform
+      if (hardwareRef.current) {
+        hardwareRef.current.style.transform = `
+          translate3d(calc(-50% + ${attachX}px), calc(${attachY}px), 0)
+          rotateZ(${hardwareWorldAngle}rad)
+        `;
+      }
+
+      // Card Transform (Child of Root Assembly)
+      if (cardRef.current) {
+        cardRef.current.style.transform = `
+          translateX(-50%)
+          rotateZ(${angleZ - hardwareWorldAngle}rad)
+          rotateY(${rY}deg)
+          rotateX(${rX}deg)
+        `;
       }
 
       // Dynamic Shine (Physical Reflection)
@@ -328,7 +325,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
     <div className="physics-card-container" ref={containerRef}>
       
       {/* SVG Lanyard Straps */}
-      <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none' }}>
+      <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none', zIndex: 10 }}>
         <defs>
           <pattern id="woven" patternUnits="userSpaceOnUse" width="6" height="6">
             <path d="M0 0 L6 6 M0 6 L6 0" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5"/>
@@ -361,79 +358,78 @@ const PhysicsIDCard = ({ imageSrc }) => {
       {/* Dynamic Detached Shadow for realistic depth */}
       <div className="physics-card-shadow" ref={shadowRef}></div>
 
-      {/* The Physical Card */}
-      <div 
-        className="physics-card-wrapper" 
-        ref={cardRef}
-        onPointerDown={handlePointerDown}
-      >
-        {/* Hardware Swivel Assembly (Rotates independently of card based on tangent) */}
-        <div className="hardware-swivel-assembly" ref={hardwareRef}>
-          <div className="hardware-strap-loop"></div>
-          <div className="hardware-o-ring"></div>
-          <div className="hardware-lobster-clasp">
-            <div className="clasp-swivel"></div>
-            <div className="clasp-body"></div>
-            <div className="clasp-gate"></div>
-            <div className="clasp-hinge"></div>
-          </div>
-        </div>
+      {/* Root Hardware Assembly */}
+      <div className="hardware-swivel-assembly" ref={hardwareRef}>
+        <div className="hardware-strap-loop"></div>
+        <div className="hardware-o-ring"></div>
+        <div className="hardware-lobster-clasp">
+          <div className="clasp-swivel"></div>
+          <div className="clasp-body"></div>
+          <div className="clasp-gate"></div>
+          <div className="clasp-hinge"></div>
+          
+          {/* PVC Badge Holder (Inherits rotation, offset downwards) */}
+          <div 
+            className="pvc-badge-holder" 
+            ref={cardRef}
+            onPointerDown={handlePointerDown}
+          >
+            <div className="badge-slot"></div>
 
-        <div className="physics-card-body">
-          {/* Direct Slot in the PVC Card */}
-          <div className="badge-slot"></div>
-
-          <div className="physics-card-inner">
-            <div className="inner-card-header">
-              <svg className="header-icon" viewBox="0 0 24 24" fill="var(--accent-red)">
-                <path d="M12 2L4.5 9h3v13h9V9h3L12 2zm0 3.8l3.7 3.5h-2.2V20h-3V9.3H8.3L12 5.8z"/>
-              </svg>
-              <span className="header-role">AI & ML ENGINEER</span>
-            </div>
-            
-            <div className="inner-card-photo-area">
-              <div className="geometric-bg"></div>
-              <img src={imageSrc} alt="Saimani" className="inner-card-photo" draggable="false" />
-            </div>
-            
-            <div className="inner-card-name-area">
-              <h1 className="name-primary"><span className="red-text">SAI</span>MANI</h1>
-              <h2 className="name-secondary">IPPILI</h2>
-            </div>
-            
-            <div className="inner-role-banner">
-              MACHINE LEARNING ENGINEER
-            </div>
-            
-            <div className="inner-details-area">
-              <div className="qr-code">
-                <div className="qr-pattern"></div>
-              </div>
-              <div className="details-text">
-                <div className="detail-group">
-                  <div className="detail-label">EMPLOYEE ID</div>
-                  <div className="detail-value">AI-ML-001</div>
+            <div className="physics-card-body">
+              <div className="physics-card-inner">
+                <div className="inner-card-header">
+                  <svg className="header-icon" viewBox="0 0 24 24" fill="var(--accent-red)">
+                    <path d="M12 2L4.5 9h3v13h9V9h3L12 2zm0 3.8l3.7 3.5h-2.2V20h-3V9.3H8.3L12 5.8z"/>
+                  </svg>
+                  <span className="header-role">AI & ML ENGINEER</span>
                 </div>
-                <div className="detail-group">
-                  <div className="detail-label">JOIN DATE</div>
-                  <div className="detail-value">JUN 2025</div>
+                
+                <div className="inner-card-photo-area">
+                  <div className="geometric-bg"></div>
+                  <img src={imageSrc} alt="Saimani" className="inner-card-photo" draggable="false" />
+                </div>
+                
+                <div className="inner-card-name-area">
+                  <h1 className="name-primary"><span className="red-text">SAI</span>MANI</h1>
+                  <h2 className="name-secondary">IPPILI</h2>
+                </div>
+                
+                <div className="inner-role-banner">
+                  MACHINE LEARNING ENGINEER
+                </div>
+                
+                <div className="inner-details-area">
+                  <div className="qr-code">
+                    <div className="qr-pattern"></div>
+                  </div>
+                  <div className="details-text">
+                    <div className="detail-group">
+                      <div className="detail-label">EMPLOYEE ID</div>
+                      <div className="detail-value">AI-ML-001</div>
+                    </div>
+                    <div className="detail-group">
+                      <div className="detail-label">JOIN DATE</div>
+                      <div className="detail-value">JUN 2025</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="inner-barcode-area">
+                  <div className="barcode-bars"></div>
+                  <div className="barcode-motto">BUILDING INTELLIGENCE, SHAPING FUTURE.</div>
+                </div>
+                
+                <div className="inner-bottom-bar">
+                  www.saimani.dev
                 </div>
               </div>
-            </div>
-            
-            <div className="inner-barcode-area">
-              <div className="barcode-bars"></div>
-              <div className="barcode-motto">BUILDING INTELLIGENCE, SHAPING FUTURE.</div>
-            </div>
-            
-            <div className="inner-bottom-bar">
-              www.saimani.dev
-            </div>
-          </div>
 
-          <div className="physics-card-overlay">
-            <div className="physics-card-texture"></div>
-            <div className="physics-card-shine" ref={shineRef}></div>
+              <div className="physics-card-overlay">
+                <div className="physics-card-texture"></div>
+                <div className="physics-card-shine" ref={shineRef}></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -442,4 +438,5 @@ const PhysicsIDCard = ({ imageSrc }) => {
 };
 
 export default PhysicsIDCard;
+
 
