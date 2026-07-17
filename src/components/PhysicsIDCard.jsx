@@ -137,9 +137,13 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
         const windForceX = Math.sin(s.time * 2.5) * Math.cos(s.time * 1.5) * c.windStrength;
         const windForceY = Math.cos(s.time * 1.2) * c.windStrength;
         
-        // 2. Global Tilt (Gyroscope removed per user request)
+        // 2. Global Tilt (Gyroscope enabled for mobile devices)
         let tiltForceX = 0;
         let tiltForceY = 0;
+        if (window.innerWidth <= 768) {
+          tiltForceX = s.globalTiltX * 3.5; 
+          tiltForceY = s.globalTiltY * 2.0;
+        }
         
         // Apply Gravity, Wind, and Tilt
         s.vy += (c.gravity + windForceY + tiltForceY) * dt;
