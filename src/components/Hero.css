@@ -164,7 +164,7 @@
 /* HUD Resume Button */
 .hud-resume-btn {
   position: absolute;
-  bottom: 40px;
+  top: 25px;
   right: 40px;
   display: flex;
   align-items: center;
