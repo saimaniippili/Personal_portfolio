@@ -159,6 +159,8 @@
   60% { transform: translate(2px, 1px) }
   80% { transform: translate(1px, -1px) }
   100% { transform: translate(0) }
+}
+
 /* HUD Resume Button */
 .hud-resume-btn {
   position: absolute;
