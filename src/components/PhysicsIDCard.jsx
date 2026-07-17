@@ -141,8 +141,8 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
         let tiltForceX = 0;
         let tiltForceY = 0;
         if (window.innerWidth <= 768) {
-          tiltForceX = s.globalTiltX * 3.5; 
-          tiltForceY = s.globalTiltY * 2.0;
+          tiltForceX = s.globalTiltX * 0.15; // Mathematically calculated to swing max 75px visually
+          tiltForceY = s.globalTiltY * 0.05;
         }
         
         // Apply Gravity, Wind, and Tilt
@@ -178,6 +178,11 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
         // 5. Apply Velocity
         s.x += s.vx * dt;
         s.y += s.vy * dt;
+
+        // Hard collision boundaries to keep it on screen
+        const maxX = 300; // Unscaled virtual pixels
+        if (s.x > maxX) { s.x = maxX; s.vx *= -0.5; }
+        if (s.x < -maxX) { s.x = -maxX; s.vx *= -0.5; }
       }
 
       // 6. Calculate True 3D Rotations
