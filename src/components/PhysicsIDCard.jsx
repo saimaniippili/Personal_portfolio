@@ -148,7 +148,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // Calculate exact attachment point of the clip on the rotated card
-      const clipDistance = 260 + 73; // Attach precisely to the center of the metal O-ring
+      const clipDistance = 260 + 80; // Attach precisely at the metal crimp
       
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
