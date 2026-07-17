@@ -148,7 +148,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
       }
 
       // Calculate exact attachment point of the clip on the rotated card
-      const clipDistance = 260 + 80; // Attach precisely at the metal crimp
+      const clipDistance = 260 + 85; // Attach precisely at the top of the fabric loop
       
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
@@ -341,19 +341,19 @@ const PhysicsIDCard = ({ imageSrc }) => {
         
         {/* LEFT STRAP */}
         <path id="left-strap-path" ref={lanyardStrapLeftRef} stroke="#a01a20" strokeWidth="22" fill="none" strokeLinecap="round" filter="url(#strap-shadow)" />
-        <path ref={lanyardStrapLeftStitchRef} stroke="#111" strokeWidth="20" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapLeftCoreRef} stroke="#cc292f" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftCoreRef} stroke="#111" strokeWidth="18" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapLeftStitchRef} stroke="#a01a20" strokeWidth="16" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
         <path ref={lanyardStrapLeftTextureRef} stroke="url(#woven)" strokeWidth="22" fill="none" strokeLinecap="round" />
-        <text fontSize="9" fill="#111" fontWeight="800" letterSpacing="1.5">
+        <text fontSize="9" fill="#fff" fontWeight="800" letterSpacing="1.5">
            <textPath href="#left-strap-path" startOffset="50%" textAnchor="middle" dominantBaseline="central">AI ML ENGINEER</textPath>
         </text>
 
         {/* RIGHT STRAP */}
         <path id="right-strap-path" ref={lanyardStrapRightRef} stroke="#a01a20" strokeWidth="22" fill="none" strokeLinecap="round" filter="url(#strap-shadow)" />
-        <path ref={lanyardStrapRightStitchRef} stroke="#111" strokeWidth="20" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
-        <path ref={lanyardStrapRightCoreRef} stroke="#cc292f" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightCoreRef} stroke="#111" strokeWidth="18" fill="none" strokeLinecap="round" />
+        <path ref={lanyardStrapRightStitchRef} stroke="#a01a20" strokeWidth="16" strokeDasharray="3 3" fill="none" strokeLinecap="round" />
         <path ref={lanyardStrapRightTextureRef} stroke="url(#woven)" strokeWidth="22" fill="none" strokeLinecap="round" />
-        <text fontSize="9" fill="#111" fontWeight="800" letterSpacing="1.5">
+        <text fontSize="9" fill="#fff" fontWeight="800" letterSpacing="1.5">
            <textPath href="#right-strap-path" startOffset="50%" textAnchor="middle" dominantBaseline="central">BUILDING INTELLIGENCE</textPath>
         </text>
       </svg>
@@ -369,7 +369,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
       >
         {/* Hardware Swivel Assembly (Rotates independently of card based on tangent) */}
         <div className="hardware-swivel-assembly" ref={hardwareRef}>
-          <div className="hardware-crimp"></div>
+          <div className="hardware-strap-loop"></div>
           <div className="hardware-o-ring"></div>
           <div className="hardware-lobster-clasp">
             <div className="clasp-body"></div>
