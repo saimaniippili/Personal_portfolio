@@ -22,15 +22,17 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
   
   // Physics State variables
   const state = useRef({
-    x: 0,
-    y: -800, // Start well above the viewport
+    x: 200,
+    y: -21,
     vx: 0,
     vy: 0,
+    rotation: 0,
+    vRotation: 0,
     isDragging: false,
     mouseX: 0,
     mouseY: 0,
     time: 0,
-    hasDropped: false, // Track if the initial drop has happened
+    hasDropped: true, // Track if the initial drop has happened
     globalTiltX: 0,
     globalTiltY: 0
   });
@@ -135,13 +137,9 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
         const windForceX = Math.sin(s.time * 2.5) * Math.cos(s.time * 1.5) * c.windStrength;
         const windForceY = Math.cos(s.time * 1.2) * c.windStrength;
         
-        // 2. Global Tilt (Gyroscope only - restricted to mobile widths)
+        // 2. Global Tilt (Gyroscope removed per user request)
         let tiltForceX = 0;
         let tiltForceY = 0;
-        if (window.innerWidth <= 768) {
-          tiltForceX = s.globalTiltX * 3.5; // Significantly increased gyro force!
-          tiltForceY = s.globalTiltY * 2.0;
-        }
         
         // Apply Gravity, Wind, and Tilt
         s.vy += (c.gravity + windForceY + tiltForceY) * dt;
