@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './PhysicsIDCard.css';
 
-const PhysicsIDCard = ({ imageSrc }) => {
+const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
   const containerRef = useRef(null);
   const cardRef = useRef(null);
   const hardwareRef = useRef(null);
@@ -30,7 +30,9 @@ const PhysicsIDCard = ({ imageSrc }) => {
     mouseX: 0,
     mouseY: 0,
     time: 0,
-    hasDropped: false // Track if the initial drop has happened
+    hasDropped: false, // Track if the initial drop has happened
+    globalTiltX: 0,
+    globalTiltY: 0
   });
 
   const constants = {
@@ -71,6 +73,41 @@ const PhysicsIDCard = ({ imageSrc }) => {
     };
   }, []);
 
+  // Sync prop to physics state
+  useEffect(() => {
+    state.current.globalTiltX = mousePos.x;
+    state.current.globalTiltY = mousePos.y;
+  }, [mousePos]);
+
+  // Global hover interaction
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      if (!containerRef.current || state.current.isDragging || !state.current.hasDropped) return;
+      
+      const rect = containerRef.current.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+      
+      // Approximate physical center of the card
+      const cardX = originX + state.current.x;
+      const cardY = originY + state.current.y + 150; // offset down into the body
+      
+      const dx = e.clientX - cardX;
+      const dy = e.clientY - cardY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < 250) { 
+        // Gentle repulsive force when mouse approaches
+        const force = (250 - distance) * 0.08;
+        state.current.vx -= (dx / distance) * force;
+        state.current.vy -= (dy / distance) * force * 0.2; 
+      }
+    };
+    
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
+
   useEffect(() => {
     let animationFrameId;
     let lastTime = performance.now();
@@ -97,9 +134,13 @@ const PhysicsIDCard = ({ imageSrc }) => {
         const windForceX = Math.sin(s.time * 2.5) * Math.cos(s.time * 1.5) * c.windStrength;
         const windForceY = Math.cos(s.time * 1.2) * c.windStrength;
         
-        // Apply Gravity and Wind
-        s.vy += (c.gravity + windForceY) * dt;
-        s.vx += windForceX * dt;
+        // 2. Global Tilt (Gyroscope or Desktop Mouse position)
+        const tiltForceX = s.globalTiltX * 0.8;
+        const tiltForceY = s.globalTiltY * 0.5;
+        
+        // Apply Gravity, Wind, and Tilt
+        s.vy += (c.gravity + windForceY + tiltForceY) * dt;
+        s.vx += (windForceX + tiltForceX) * dt;
 
         // 2. Lanyard Constraint (Spring toward pivot)
         const dx = pivotX - s.x;

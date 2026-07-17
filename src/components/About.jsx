@@ -71,7 +71,7 @@ const About = () => {
           </ScrollReveal>
           
           <div className="about-image-column">
-            <PhysicsIDCard imageSrc={imageSrc} />
+            <PhysicsIDCard imageSrc={imageSrc} mousePos={mousePos} />
           </div>
 
         </div>
