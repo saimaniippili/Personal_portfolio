@@ -64,7 +64,7 @@ const Navbar = () => {
             <a href={resumeUrl} target="_blank" rel="noreferrer" className="hud-resume-btn nav-resume" title="View / Download Resume">
               <div className="hud-resume-content">
                 <span className="hud-dot"></span>
-                <span className="hud-text">SYS.RESUME</span>
+                <span className="hud-text">RESUME</span>
                 <FaFileDownload size={14} className="hud-icon" />
               </div>
               <div className="hud-scanner"></div>
