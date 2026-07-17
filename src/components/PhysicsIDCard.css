@@ -337,7 +337,7 @@
 */
 .hardware-swivel-assembly {
   position: absolute;
-  top: -85px; /* Sits above the card body */
+  top: 50%; /* Origin matches the physics string pivot */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
