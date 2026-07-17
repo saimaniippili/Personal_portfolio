@@ -117,14 +117,18 @@ const Hero = () => {
           </h1>
         </div>
         
-        {resumeUrl && (
-          <a href={resumeUrl} target="_blank" rel="noreferrer" className="resume-download-btn sleek-btn" title="View / Download Resume">
-            <span>DOWNLOAD RESUME</span>
-            <FaFileDownload size={18} />
-          </a>
-        )}
-        
       </div>
+
+      {resumeUrl && (
+        <a href={resumeUrl} target="_blank" rel="noreferrer" className="hud-resume-btn" title="View / Download Resume">
+          <div className="hud-resume-content">
+            <span className="hud-dot"></span>
+            <span className="hud-text">SYS.RESUME</span>
+            <FaFileDownload size={14} className="hud-icon" />
+          </div>
+          <div className="hud-scanner"></div>
+        </a>
+      )}
 
       <div className={`mobile-tilt-hint ${hasTilted ? 'hidden' : ''}`}>
         <Smartphone size={32} className="phone-icon-animated" />
