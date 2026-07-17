@@ -53,12 +53,12 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
     // 1. Set up Intersection Observer to trigger the drop
     const observer = new IntersectionObserver(
       (entries) => {
-        const [entry] = entries;
+        const entry = entries[0];
         if (entry.isIntersecting && !state.current.hasDropped) {
           state.current.hasDropped = true;
-          // Give it a gentle chaotic toss when it drops!
-          state.current.vx = (Math.random() - 0.5) * 15;
-          state.current.vy = 8;
+          // Smooth pendulum release - no artificial velocity needed
+          state.current.vx = 0;
+          state.current.vy = 0;
         }
       },
       { threshold: 0.3 } // Trigger when 30% of the container is visible
@@ -122,10 +122,11 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
       // Pivot coordinates must be scoped to the whole function!
       const pivotX = 0;
       const pivotY = -1000; // Wall pin is way above the screen
-      
+      // Apply physics rules
       if (!s.hasDropped) {
-        // Hold the card well above the viewport, waiting to drop
-        s.y = -800;
+        // Hold the card off-screen at exactly string-length distance to create a perfect pendulum swing
+        s.x = 600; 
+        s.y = -200;
         s.vy = 0;
         s.vx = 0;
       } else {
