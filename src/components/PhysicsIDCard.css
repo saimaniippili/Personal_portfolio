@@ -539,3 +539,9 @@
   height: 520px !important;
   pointer-events: none; /* Dragging handled by PVC holder */
 }
+
+@media (max-width: 768px) {
+  .physics-3d-wrapper {
+    transform: scale(0.55);
+  }
+}

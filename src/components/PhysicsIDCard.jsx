@@ -138,8 +138,8 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
         let tiltForceX = 0;
         let tiltForceY = 0;
         if (window.innerWidth <= 768) {
-          tiltForceX = s.globalTiltX * 0.8;
-          tiltForceY = s.globalTiltY * 0.5;
+          tiltForceX = s.globalTiltX * 3.5; // Significantly increased gyro force!
+          tiltForceY = s.globalTiltY * 2.0;
         }
         
         // Apply Gravity, Wind, and Tilt
