@@ -344,8 +344,8 @@
   flex-direction: column;
   align-items: center;
   z-index: 20;
-  /* Will be rotated by JS */
-  transform-origin: center bottom;
+  /* Rotate exactly around the attachment point (top center) */
+  transform-origin: center top;
   will-change: transform;
 }
 
