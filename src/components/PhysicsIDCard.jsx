@@ -96,9 +96,9 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
       const dy = e.clientY - cardY;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      if (distance < 250) { 
-        // Gentle repulsive force when mouse approaches
-        const force = (250 - distance) * 0.08;
+      if (distance < 180) { 
+        // Gentle repulsive force when mouse is very close
+        const force = (180 - distance) * 0.05;
         state.current.vx -= (dx / distance) * force;
         state.current.vy -= (dy / distance) * force * 0.2; 
       }
@@ -134,9 +134,13 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
         const windForceX = Math.sin(s.time * 2.5) * Math.cos(s.time * 1.5) * c.windStrength;
         const windForceY = Math.cos(s.time * 1.2) * c.windStrength;
         
-        // 2. Global Tilt (Gyroscope or Desktop Mouse position)
-        const tiltForceX = s.globalTiltX * 0.8;
-        const tiltForceY = s.globalTiltY * 0.5;
+        // 2. Global Tilt (Gyroscope only - restricted to mobile widths)
+        let tiltForceX = 0;
+        let tiltForceY = 0;
+        if (window.innerWidth <= 768) {
+          tiltForceX = s.globalTiltX * 0.8;
+          tiltForceY = s.globalTiltY * 0.5;
+        }
         
         // Apply Gravity, Wind, and Tilt
         s.vy += (c.gravity + windForceY + tiltForceY) * dt;
