@@ -117,6 +117,13 @@ const Hero = () => {
           </h1>
         </div>
         
+        {resumeUrl && (
+          <a href={resumeUrl} target="_blank" rel="noreferrer" className="resume-download-btn sleek-btn" title="View / Download Resume">
+            <span>DOWNLOAD RESUME</span>
+            <FaFileDownload size={18} />
+          </a>
+        )}
+        
       </div>
 
       <div className={`mobile-tilt-hint ${hasTilted ? 'hidden' : ''}`}>
@@ -124,11 +131,7 @@ const Hero = () => {
         <span>TILT TO EXPLORE</span>
       </div>
 
-      {resumeUrl && (
-        <a href={resumeUrl} target="_blank" rel="noreferrer" className="resume-download-btn sleek-btn" title="View / Download Resume">
-          <FaFileDownload size={24} />
-        </a>
-      )}
+
 
       {/* Smooth Geometric Transition to About Section */}
       <svg className="sleek-curve-bottom" viewBox="0 0 1440 100" preserveAspectRatio="none">

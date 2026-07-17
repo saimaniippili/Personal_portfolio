@@ -162,6 +162,22 @@
 }
 
 
+/* Resume Button */
+.resume-download-btn {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 28px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
 /* Sleek Transition Curve */
 .sleek-curve-bottom {
   position: absolute;
