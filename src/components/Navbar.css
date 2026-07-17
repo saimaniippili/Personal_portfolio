@@ -185,16 +185,13 @@
   align-items: center;
   justify-content: center;
   padding: 8px 16px;
-  background: rgba(10, 10, 10, 0.7);
-  border: 1px solid rgba(255, 42, 42, 0.3);
-  border-radius: 2px;
+  background: transparent;
+  border: none;
   text-decoration: none;
   font-family: 'Anton', sans-serif;
   overflow: hidden;
   z-index: 50;
-  backdrop-filter: blur(4px);
   transition: all 0.3s ease;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
 }
 
 .hud-resume-content {
@@ -239,9 +236,7 @@
 }
 
 .hud-resume-btn:hover {
-  background: rgba(255, 42, 42, 0.15);
-  border-color: var(--accent-red);
-  box-shadow: 0 0 20px rgba(255, 42, 42, 0.2);
+  /* Simple glow effect for the text/icon without background boxes */
 }
 
 .hud-resume-btn:hover .hud-text,
