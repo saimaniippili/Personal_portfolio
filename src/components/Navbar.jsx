@@ -60,16 +60,6 @@ const Navbar = () => {
         </button>
 
         <div className="nav-right-container">
-          {resumeUrl && (
-            <a href={resumeUrl} target="_blank" rel="noreferrer" className="hud-resume-btn nav-resume" title="View / Download Resume">
-              <div className="hud-resume-content">
-                <span className="hud-dot"></span>
-                <span className="hud-text">RESUME</span>
-                <FaFileDownload size={14} className="hud-icon" />
-              </div>
-              <div className="hud-scanner"></div>
-            </a>
-          )}
           <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`} ref={linksRef} onMouseLeave={handleMouseLeave}>
             <div 
               className="nav-highlight" 
@@ -79,6 +69,18 @@ const Navbar = () => {
               opacity: activeRect ? 1 : 0
             }} 
           />
+          {resumeUrl && (
+            <li onMouseEnter={handleMouseEnter} className="nav-item">
+              <a href={resumeUrl} target="_blank" rel="noreferrer" className="hud-resume-btn nav-resume" title="View / Download Resume">
+                <div className="hud-resume-content">
+                  <span className="hud-dot"></span>
+                  <span className="hud-text">RESUME</span>
+                  <FaFileDownload size={14} className="hud-icon" />
+                </div>
+                <div className="hud-scanner"></div>
+              </a>
+            </li>
+          )}
           {navLinks.map((link) => (
             <li key={link.id} onMouseEnter={handleMouseEnter} className="nav-item">
               <a href={`#${link.id}`} onClick={() => setMobileMenuOpen(false)}>{link.title.toUpperCase()}</a>
