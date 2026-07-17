@@ -71,13 +71,10 @@ const Navbar = () => {
           />
           {resumeUrl && (
             <li onMouseEnter={handleMouseEnter} className="nav-item">
-              <a href={resumeUrl} target="_blank" rel="noreferrer" className="hud-resume-btn nav-resume" title="View / Download Resume">
-                <div className="hud-resume-content">
-                  <span className="hud-dot"></span>
-                  <span className="hud-text">RESUME</span>
-                  <FaFileDownload size={14} className="hud-icon" />
-                </div>
-                <div className="hud-scanner"></div>
+              <a href={resumeUrl} target="_blank" rel="noreferrer" className="resume-nav-link" title="View / Download Resume">
+                <span className="hud-dot"></span>
+                <span>RESUME</span>
+                <FaFileDownload size={14} className="hud-icon" />
               </a>
             </li>
           )}

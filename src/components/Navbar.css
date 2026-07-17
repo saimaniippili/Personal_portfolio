@@ -178,28 +178,11 @@
   gap: 2rem;
 }
 
-/* HUD Resume Button */
-.hud-resume-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  background: transparent;
-  border: none;
-  text-decoration: none;
-  font-family: 'Anton', sans-serif;
-  overflow: hidden;
-  z-index: 50;
-  transition: all 0.3s ease;
-}
-
-.hud-resume-content {
-  display: flex;
+/* Resume Nav Link */
+.resume-nav-link {
+  display: flex !important;
   align-items: center;
   gap: 10px;
-  position: relative;
-  z-index: 2;
 }
 
 .hud-dot {
@@ -211,50 +194,18 @@
   animation: hud-pulse 2s infinite;
 }
 
-.hud-text {
-  color: var(--text-light);
-  font-size: 1.1rem;
-  letter-spacing: 1.5px;
+.hud-icon {
+  color: var(--accent-red);
   opacity: 0.8;
   transition: opacity 0.3s ease;
 }
 
-.hud-icon {
-  color: var(--accent-red);
-  opacity: 0.8;
-}
-
-.hud-scanner {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 42, 42, 0.2), transparent);
-  transform: skewX(-20deg);
-  z-index: 1;
-}
-
-.hud-resume-btn:hover {
-  /* Simple glow effect for the text/icon without background boxes */
-}
-
-.hud-resume-btn:hover .hud-text,
-.hud-resume-btn:hover .hud-icon {
+.nav-item:hover .hud-icon {
   opacity: 1;
-}
-
-.hud-resume-btn:hover .hud-scanner {
-  animation: hud-scan 1.5s infinite;
 }
 
 @keyframes hud-pulse {
   0% { opacity: 0.4; }
   50% { opacity: 1; }
   100% { opacity: 0.4; }
-}
-
-@keyframes hud-scan {
-  0% { left: -100%; }
-  100% { left: 200%; }
 }
