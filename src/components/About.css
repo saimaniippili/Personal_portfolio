@@ -258,12 +258,17 @@
 /* Responsiveness */
 @media (max-width: 1024px) {
   .about-container {
-    flex-direction: column;
+    flex-direction: column-reverse; /* Put ID card on top so it hangs from Hero section */
     text-align: center;
   }
   .about-text-column, .about-image-column {
     width: 100%;
     padding-right: 0;
+  }
+  .about-text-column {
+    margin-top: 40px; /* Space between card and text */
+    position: relative;
+    z-index: 20; /* Ensure text is above any stray physics elements */
   }
   .title-underline {
     margin: 0 auto 25px auto;
@@ -272,8 +277,8 @@
     margin: 0 auto;
   }
   .about-image-column {
-    margin-top: 60px;
-    height: 500px;
+    margin-top: 20px;
+    height: 450px; /* Reduced height since card is scaled down */
   }
   .geometric-blob {
     width: 90%;
