@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '../lib/supabaseClient';
 import { navLinks, personalInfo } from '../constants';
 import { Menu, X } from 'lucide-react';
+import { FaFileDownload } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
+  const [resumeUrl, setResumeUrl] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [activeRect, setActiveRect] = useState(null);
@@ -12,6 +15,14 @@ const Navbar = () => {
   const linksRef = useRef(null);
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      const { data } = await supabase.from('portfolio_profile').select('resume_url').limit(1).single();
+      if (data && data.resume_url) {
+        setResumeUrl(data.resume_url);
+      }
+    };
+    fetchProfile();
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 50);
@@ -48,9 +59,20 @@ const Navbar = () => {
           {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`} ref={linksRef} onMouseLeave={handleMouseLeave}>
-          <div 
-            className="nav-highlight" 
+        <div className="nav-right-container">
+          {resumeUrl && (
+            <a href={resumeUrl} target="_blank" rel="noreferrer" className="hud-resume-btn nav-resume" title="View / Download Resume">
+              <div className="hud-resume-content">
+                <span className="hud-dot"></span>
+                <span className="hud-text">SYS.RESUME</span>
+                <FaFileDownload size={14} className="hud-icon" />
+              </div>
+              <div className="hud-scanner"></div>
+            </a>
+          )}
+          <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`} ref={linksRef} onMouseLeave={handleMouseLeave}>
+            <div 
+              className="nav-highlight" 
             style={{ 
               left: activeRect ? activeRect.left : 0, 
               width: activeRect ? activeRect.width : 0,
@@ -62,7 +84,8 @@ const Navbar = () => {
               <a href={`#${link.id}`} onClick={() => setMobileMenuOpen(false)}>{link.title.toUpperCase()}</a>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       </div>
     </nav>
   );
