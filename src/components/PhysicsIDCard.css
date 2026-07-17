@@ -1,6 +1,6 @@
 .physics-card-container {
   width: 100%;
-  height: 650px;
+  height: 100%;
   position: relative;
   display: flex;
   justify-content: center;
@@ -8,6 +8,7 @@
   perspective: 2000px;
   /* Disable interaction on container so mouse tracking isn't interrupted */
   touch-action: none;
+  overflow: visible;
 }
 
 .lanyard-svg {
@@ -477,18 +478,57 @@
   box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);
 }
 
+/* PVC Holder */
+.pvc-badge-holder {
+  position: absolute;
+  top: 35px; /* Overlaps with clasp tip */
+  left: 9px; /* Center relative to 18px clasp */
+  width: 356px;
+  height: 560px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
+  backdrop-filter: blur(1.5px) brightness(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow: 
+    inset 0 1px 1px rgba(255,255,255,0.5),
+    0 10px 20px rgba(0,0,0,0.2);
+  transform-origin: 50% 10px; /* Pivots around the slot */
+  will-change: transform;
+  transform-style: preserve-3d; /* CRITICAL FOR 3D glare */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 8px; /* Inner card sits at the bottom */
+  cursor: grab;
+  pointer-events: auto; /* Enable dragging on the holder */
+}
+
+.pvc-badge-holder:active {
+  cursor: grabbing;
+}
+
 /* Direct Slot in the PVC Card */
 .badge-slot {
   position: absolute;
-  top: 10px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
+  width: 44px;
   height: 8px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
   box-shadow: 
-    inset 0 1px 3px rgba(0,0,0,0.3),
-    0 1px 0 rgba(255,255,255,0.4);
+    inset 0 1px 4px rgba(0,0,0,0.4),
+    0 1px 0 rgba(255,255,255,0.2);
   z-index: 10;
+}
+
+/* Force standard ID card dimensions inside the PVC holder */
+.physics-card-body {
+  width: 340px !important;
+  height: 520px !important;
+  pointer-events: none; /* Dragging handled by PVC holder */
 }

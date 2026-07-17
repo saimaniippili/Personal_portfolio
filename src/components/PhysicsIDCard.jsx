@@ -38,10 +38,14 @@ const PhysicsIDCard = ({ imageSrc }) => {
     friction: 0.94, // Damping (air resistance)
     springTension: 0.12, // Stiffness of the lanyard
     mouseSpringTension: 0.08, // Strength of user's pull
-    lanyardLength: 1050, // Extended so the pivot can be way off screen
+    lanyardLength: 1000, // Match pivot to rest at y=0
     windStrength: 0.015, // Micro-oscillations
     mass: 1.5 // Adds weight to the card
   };
+
+  const pivotX = 0;
+  const pivotY = -1000;
+  const clipDistance = 367; // Scientifically calculated distance from hardware root to card center
 
   useEffect(() => {
     // 1. Set up Intersection Observer to trigger the drop
@@ -143,8 +147,6 @@ const PhysicsIDCard = ({ imageSrc }) => {
       // The card is inside the hardware, so its rotation is relative
       
       // Calculate exact attachment point of the clip at the top of the fabric loop
-      const clipDistance = 379; // Mathematically calculated hierarchy offset
-      
       const attachX = s.x + clipDistance * Math.sin(angleZ);
       const attachY = s.y - clipDistance * Math.cos(angleZ);
 
