@@ -3,10 +3,9 @@
   color: var(--text-dark);
   position: relative;
   z-index: 1; /* Lower than hero section */
-  padding: 100px 40px 150px; /* Extra padding at bottom for the red divider */
+  padding: 120px 40px 150px; /* Extra padding at bottom for the red divider */
   min-height: 80vh;
-  display: flex;
-  align-items: center;
+  display: block; /* Removed flex centering to prevent upward overflow on small screens */
 }
 
 /* Fix torn text color for light background */
