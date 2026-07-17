@@ -369,9 +369,10 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
 
   return (
     <div className="physics-card-container" ref={containerRef}>
-      
-      {/* SVG Lanyard Straps */}
-      <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none', zIndex: 10 }}>
+      <div className="physics-3d-wrapper">
+        
+        {/* SVG Lanyard Straps */}
+        <svg className="lanyard-svg" style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, overflow: 'visible', pointerEvents: 'none', zIndex: 10 }}>
         <defs>
           <pattern id="woven" patternUnits="userSpaceOnUse" width="6" height="6">
             <path d="M0 0 L6 6 M0 6 L6 0" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5"/>
@@ -478,6 +479,7 @@ const PhysicsIDCard = ({ imageSrc, mousePos = {x: 0, y: 0} }) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
