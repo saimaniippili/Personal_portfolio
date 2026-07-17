@@ -278,7 +278,7 @@
   }
   .about-image-column {
     margin-top: 20px;
-    height: 450px; /* Reduced height since card is scaled down */
+    height: 300px; /* Reduced further to match the much smaller 0.4 scale ID card */
   }
   .geometric-blob {
     width: 90%;

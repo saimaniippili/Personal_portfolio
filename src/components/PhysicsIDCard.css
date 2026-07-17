@@ -6,8 +6,6 @@
   justify-content: center;
   align-items: center;
   perspective: 2000px;
-  /* Disable interaction on container so mouse tracking isn't interrupted */
-  touch-action: none;
   overflow: visible;
 }
 
@@ -510,6 +508,7 @@
   padding-bottom: 8px; /* Inner card sits at the bottom */
   cursor: grab;
   pointer-events: auto; /* Enable dragging on the holder */
+  touch-action: none;
 }
 
 .pvc-badge-holder:active {
@@ -542,6 +541,6 @@
 
 @media (max-width: 768px) {
   .physics-3d-wrapper {
-    transform: scale(0.55);
+    transform: scale(0.40);
   }
 }
