@@ -356,6 +356,20 @@
   will-change: transform;
 }
 
+/* Metal Crimp that holds the strap loop together */
+.hardware-crimp {
+  width: 14px;
+  height: 10px;
+  background: linear-gradient(0deg, #666, #e6e6e6 40%, #ccc 60%, #888);
+  border-radius: 2px;
+  box-shadow: 
+    0 2px 5px rgba(0,0,0,0.6),
+    inset 0 1px 1px rgba(255,255,255,0.8);
+  margin-bottom: -2px; /* Overlap with ring */
+  position: relative;
+  z-index: 3;
+}
+
 /* Polished Stainless Steel O-Ring */
 .hardware-o-ring {
   width: 24px;

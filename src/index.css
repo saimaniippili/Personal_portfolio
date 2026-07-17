@@ -37,12 +37,11 @@ h1, h2, h3, h4, h5, h6 {
 /* Torn Paper SVG shapes */
 .torn-top {
   position: absolute;
-  top: 0;
+  bottom: -1px; /* 1px overlap to prevent sub-pixel rendering gaps */
   left: 0;
   width: 100%;
-  height: 40px; /* Explicit height ensures consistent intersection */
-  transform: translateY(-98%);
-  z-index: 1000;
+  height: 40px; 
+  z-index: 20;
   pointer-events: none;
 }
 

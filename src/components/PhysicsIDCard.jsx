@@ -369,6 +369,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
       >
         {/* Hardware Swivel Assembly (Rotates independently of card based on tangent) */}
         <div className="hardware-swivel-assembly" ref={hardwareRef}>
+          <div className="hardware-crimp"></div>
           <div className="hardware-o-ring"></div>
           <div className="hardware-lobster-clasp">
             <div className="clasp-body"></div>

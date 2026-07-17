@@ -2,12 +2,11 @@
   background-color: var(--bg-light);
   color: var(--text-dark);
   position: relative;
+  z-index: 1; /* Lower than hero section */
   padding: 100px 40px 150px; /* Extra padding at bottom for the red divider */
   min-height: 80vh;
   display: flex;
   align-items: center;
-  /* Perfectly clip exactly above the torn paper to prevent hero section bleed without cropping card swings */
-  clip-path: polygon(-100% -40px, 200% -40px, 200% 200%, -100% 200%);
 }
 
 /* Fix torn text color for light background */

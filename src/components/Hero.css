@@ -6,6 +6,7 @@
   background-color: var(--bg-dark);
   position: relative;
   overflow: hidden;
+  z-index: 10;
 }
 
 .hero-container {
