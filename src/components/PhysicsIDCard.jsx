@@ -372,6 +372,7 @@ const PhysicsIDCard = ({ imageSrc }) => {
           <div className="hardware-strap-loop"></div>
           <div className="hardware-o-ring"></div>
           <div className="hardware-lobster-clasp">
+            <div className="clasp-swivel"></div>
             <div className="clasp-body"></div>
             <div className="clasp-gate"></div>
             <div className="clasp-hinge"></div>
@@ -379,10 +380,8 @@ const PhysicsIDCard = ({ imageSrc }) => {
         </div>
 
         <div className="physics-card-body">
-          {/* PVC Plastic Connector */}
-          <div className="pvc-connector">
-            <div className="pvc-connector-hole"></div>
-          </div>
+          {/* Direct Slot in the PVC Card */}
+          <div className="badge-slot"></div>
 
           <div className="physics-card-inner">
             <div className="inner-card-header">
